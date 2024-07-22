@@ -5,16 +5,18 @@ use reqwest::Client;
 use serde_json::Value;
 use std::path::PathBuf;
 
-pub async fn upload_file(_file: PathBuf, _retries: u64) {
-    let client = request::client().unwrap();
+pub async fn upload_file(_file: PathBuf, _retries: u64) -> Result<()> {
+    let client = request::client()?;
     
     let a = up_load_chunk(client, ChunkBytes::from(ChunkJson {
         server_id: 1000,
         ping: 65535,
         upload: 8388608,
         download: 8388608
-    })).await.unwrap();
+    })).await?;
     println!("https://www.speedtest.net/result/{}", a);
+
+    Ok(())
 }
 
 async fn up_load_chunk(client: Client, payload: ChunkBytes) -> Result<u64>{
