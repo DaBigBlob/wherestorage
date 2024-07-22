@@ -1,9 +1,9 @@
 
 use std::fmt::Display;
 
-#[derive(Clone)]
 pub struct Error(String);
 
+#[allow(dead_code)]
 impl Error {
     pub fn from_err(e: impl Display) -> Self {
         Self(format!("Underlying Error: {}", e.to_string()))
@@ -13,7 +13,11 @@ impl Error {
         Self(str.to_string())
     }
 
-    pub fn to_string(self) -> String {
+    pub fn to_string(&self) -> String {
+        self.0.clone()
+    }
+
+    pub fn into_string(self) -> String {
         self.0
     }
 }

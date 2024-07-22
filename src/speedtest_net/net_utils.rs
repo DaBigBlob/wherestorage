@@ -1,7 +1,6 @@
 
 use crate::prelude::{self, *};
 
-#[derive(Clone)]
 pub struct ChunkBytes([u8; 9]);
 
 // impl ChunkBytes {
@@ -32,7 +31,6 @@ const CHUNK_JSON_LIMITS: ChunkJsonLimits = ChunkJsonLimits {
     download_min: 1,
 };
 
-#[derive(Clone)]
 pub struct ChunkJson {
     pub server_id: u16,     // 10000 to 65462           :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
     pub ping: u16,          // 0 to 65536              :::: 65537  states ::~16bits ::2 bytes  ::16bit ::2B
@@ -109,39 +107,6 @@ impl From<ChunkBytes> for ChunkJson {
     }
 }
 
-
-// impl From<ChunkJson> for ChunkBytes {
-//     /// this may panic if internal conditions are not met
-//     fn from(cjb: ChunkJson) -> Self {
-//         let mut bytes: [u8; 9] = [0; 9];
-
-//         let mut server_id = cjb.server_id - CHUNK_JSON_LIMITS.server_id_min;
-//         bytes[8] += (server_id & 0b1).to_le_bytes()[0];
-//         server_id = (server_id >> 1) & 0b11111111_1u16;
-//         bytes[7] += (server_id & 0b1).to_le_bytes()[0];
-//         server_id = (server_id >> 1) & 0b11111111u16;
-//         bytes[0] += server_id.to_le_bytes()[0];
-
-//         let ping = (cjb.ping - CHUNK_JSON_LIMITS.ping_min).to_le_bytes();
-//         bytes[2] += ping[0];
-//         bytes[1] += ping[1];
-
-//         let upload = cjb.upload - CHUNK_JSON_LIMITS.upload_min;
-//         bytes[7] += ((upload << 1) & 0b11111110u32).to_le_bytes()[0];
-//         let upload_bytes = ((upload >> 7) & 0b11111111_11111111u32).to_le_bytes();
-//         bytes[4] += upload_bytes[0];
-//         bytes[3] += upload_bytes[1];
-
-//         let download = cjb.download - CHUNK_JSON_LIMITS.download_min;
-//         bytes[8] += ((download << 1) & 0b11111110u32).to_le_bytes()[0];
-//         let download_bytes = ((download >> 7) & 0b11111111_11111111u32).to_le_bytes();
-//         bytes[6] += download_bytes[0];
-//         bytes[5] += download_bytes[1];
-
-//         ChunkBytes(bytes)
-//     }
-// }
-
 impl TryFrom<ChunkJson> for ChunkBytes {
     type Error = prelude::Error;
 
@@ -198,7 +163,7 @@ mod tests {
         fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
             f
             .debug_tuple("Error")
-            .field(&self.clone().to_string())
+            .field(&self.to_string())
             .finish()
         }
     }
@@ -221,8 +186,9 @@ mod tests {
 
     #[test]
     fn good_enc_dec() {
-        let cb = ChunkBytes([100, 101, 102, 103, 104, 105, 106, 107, 108]);
-        let cj = ChunkJson::from(cb.clone());
-        assert_eq!(ChunkBytes::try_from(cj).unwrap().0, cb.0);
+        let b: [u8; 9] = [100, 101, 102, 103, 104, 105, 106, 107, 108];
+        let cb = ChunkBytes(b.clone());
+        let cj = ChunkJson::from(cb);
+        assert_eq!(ChunkBytes::try_from(cj).unwrap().0, b);
     }
 }

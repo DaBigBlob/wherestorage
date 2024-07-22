@@ -14,7 +14,7 @@ async fn main() {
         Subcmd::Down { url } => download_file(url).await,
         Subcmd::Up { file } => upload_file(file).await,
     }.unwrap_or_else(|e| {
-        eprintln!("Error: {}",e.to_string());
+        eprintln!("Error: {}",e.into_string());
         std::process::exit(1);
     })
 }

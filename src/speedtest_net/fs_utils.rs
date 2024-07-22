@@ -8,10 +8,10 @@
     0b11 << (8*8-2) :: 2^62 = 4611686018427387904 states [is epoch]
 */
 
-// pub struct IntrimFileDescriptor {
-//     to_uncompressed: u64,
-//     name: Option<String>
-// }
+pub struct IntrimFileDeclaration {
+    to_uncompressed: u64,
+    name: Option<String>
+}
 
 // pub enum IntrimFileWritable {
 // }
