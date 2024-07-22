@@ -14,25 +14,17 @@ pub struct Args {
 
 #[derive(Parser, Debug)]
 pub enum Subcmd {
-    /// Upload a file to speedtest.net
+    /// Upload a file
     Up {
         /// The file you want to upload
         #[arg()]
-        file: PathBuf,
-
-        /// Retries before giving up
-        #[arg(default_value_t = 60)]
-        retries: u64,
+        file: PathBuf
     },
 
-    /// Download a file from speedtest.net
+    /// Download a file
     Down {
         /// The speedtest.net url
         #[arg()]
-        url: Url,
-
-        /// The depth of the final file
-        #[arg()]
-        depth: u64
+        url: Url
     }
 }
