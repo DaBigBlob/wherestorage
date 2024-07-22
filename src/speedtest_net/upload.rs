@@ -1,9 +1,8 @@
 
-use crate::{prelude::*, speedtest_net::request, utils::ChunkBytes};
+use crate::{prelude::*, speedtest_net::request, speedtest_net::utils::ChunkBytes, speedtest_net::utils::ChunkJson};
 use reqwest::Client;
 use serde_json::Value;
 use std::path::PathBuf;
-use crate::utils::ChunkJson;
 
 pub async fn upload_file(_file: PathBuf, _retries: u64) -> Result<()>{
     let client = request::client()?;

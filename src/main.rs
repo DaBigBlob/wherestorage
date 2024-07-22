@@ -1,7 +1,6 @@
 
 mod prelude;
 mod cli;
-mod utils;
 mod speedtest_net;
 
 use prelude::*;
