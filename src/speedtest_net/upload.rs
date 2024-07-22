@@ -8,7 +8,7 @@ use std::path::PathBuf;
 pub async fn upload_file(_file: PathBuf, _retries: u64) -> Result<()> {
     let client = request::client()?;
     
-    let a = up_load_chunk(client, ChunkBytes::from(ChunkJson {
+    let a = upload_chunk(client, ChunkBytes::from(ChunkJson {
         server_id: 65535,
         ping: 65535,
         upload: 8388608,
@@ -19,7 +19,7 @@ pub async fn upload_file(_file: PathBuf, _retries: u64) -> Result<()> {
     Ok(())
 }
 
-async fn up_load_chunk(client: Client, payload: ChunkBytes) -> Result<u64>{
+async fn upload_chunk(client: Client, payload: ChunkBytes) -> Result<u64>{
     client
     .post("https://www.speedtest.net/api/results.php")
     .body(ChunkJson::from(payload).to_string())
