@@ -13,12 +13,15 @@ pub async fn upload_file(file: PathBuf) -> Result<()> {
 
     let _a = _file_data.into_iter();
 
-    let a = upload_chunk(client, ChunkBytes::from(ChunkJson {
-        server_id: 65535,
-        ping: 65535,
-        upload: 8388608,
-        download: 8388608
-    })).await?;
+    let a = upload_chunk(
+        client,
+        ChunkBytes::try_from(ChunkJson {
+            server_id: 65535,
+            ping: 65535,
+            upload: 8388608,
+            download: 8388608
+        })?
+    ).await?;
     println!("https://www.speedtest.net/result/{}", a);
 
     Ok(())
