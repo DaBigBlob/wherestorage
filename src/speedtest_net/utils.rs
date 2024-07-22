@@ -91,7 +91,6 @@ impl From<ChunkJson> for ChunkBytes {
         bytes[4] += upload_bytes[0];
         bytes[3] += upload_bytes[1];
 
-
         let download = cj.download - 1;
         bytes[8] += ((download << 1) & 0b11111110u32).to_le_bytes()[0];
         let download_bytes = ((download >> 7) & 0b11111111_11111111u32).to_le_bytes();
