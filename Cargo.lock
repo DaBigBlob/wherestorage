@@ -1399,7 +1399,6 @@ dependencies = [
  "md5",
  "openssl",
  "reqwest",
- "serde",
  "serde_json",
  "tokio",
  "url",
