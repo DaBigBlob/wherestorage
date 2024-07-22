@@ -1,5 +1,5 @@
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ChunkBytes([u8; 9]);
 
 // impl ChunkBytes {
@@ -8,7 +8,7 @@ pub struct ChunkBytes([u8; 9]);
 //     }
 // }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ChunkJson {
     pub server_id: u16,     // 10000 to 65462           :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
     pub ping: u16,          // 0 to 65536              :::: 65537  states ::~16bits ::2 bytes  ::16bit ::2B
