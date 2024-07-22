@@ -35,7 +35,7 @@ impl ChunkJson {
 }
 
 impl From<ChunkBytes> for ChunkJson {
-    /* byte allocation
+    /* byte allocation to field
         bytes[0]            -> server_id
         bytes[1,2]          -> ping
         bytes[3,4]          -> upload
