@@ -1,4 +1,6 @@
 
+use crate::prelude::*;
+
 #[derive(Clone)]
 pub struct ChunkBytes([u8; 9]);
 
@@ -54,6 +56,21 @@ impl ChunkJson {
             )))
         )
     }
+
+    pub fn is_bytable(self) -> Result<Self> {
+        if !(CHUNK_JSON_LIMITS.server_id_min..=CHUNK_JSON_LIMITS.server_id_min)
+            .contains(&self.server_id) {Err(Error::from_str("'serverid' is not in range."))}
+        else 
+        if !(CHUNK_JSON_LIMITS.ping_min..=CHUNK_JSON_LIMITS.ping_max)
+            .contains(&self.ping) {Err(Error::from_str("'ping' is not in range."))}
+        else 
+        if !(CHUNK_JSON_LIMITS.upload_min..=CHUNK_JSON_LIMITS.upload_max)
+            .contains(&self.upload) {Err(Error::from_str("'upload' is not in range."))}
+        else 
+        if !(CHUNK_JSON_LIMITS.download_min..=CHUNK_JSON_LIMITS.download_max)
+            .contains(&self.download) {Err(Error::from_str("'download' is not in range."))}
+        else {Ok(self)}
+    }
 }
 
 impl From<ChunkBytes> for ChunkJson {
@@ -94,27 +111,28 @@ impl From<ChunkBytes> for ChunkJson {
 
 
 impl From<ChunkJson> for ChunkBytes {
-    fn from(cj: ChunkJson) -> Self {
+    /// this may panic if internal conditions are not met
+    fn from(cjb: ChunkJson) -> Self {
         let mut bytes: [u8; 9] = [0; 9];
 
-        let mut server_id = cj.server_id - CHUNK_JSON_LIMITS.server_id_min;
+        let mut server_id = cjb.server_id - CHUNK_JSON_LIMITS.server_id_min;
         bytes[8] += (server_id & 0b1).to_le_bytes()[0];
         server_id = (server_id >> 1) & 0b11111111_1u16;
         bytes[7] += (server_id & 0b1).to_le_bytes()[0];
         server_id = (server_id >> 1) & 0b11111111u16;
         bytes[0] += server_id.to_le_bytes()[0];
 
-        let ping = (cj.ping - CHUNK_JSON_LIMITS.ping_min).to_le_bytes();
+        let ping = (cjb.ping - CHUNK_JSON_LIMITS.ping_min).to_le_bytes();
         bytes[2] += ping[0];
         bytes[1] += ping[1];
 
-        let upload = cj.upload - CHUNK_JSON_LIMITS.upload_min;
+        let upload = cjb.upload - CHUNK_JSON_LIMITS.upload_min;
         bytes[7] += ((upload << 1) & 0b11111110u32).to_le_bytes()[0];
         let upload_bytes = ((upload >> 7) & 0b11111111_11111111u32).to_le_bytes();
         bytes[4] += upload_bytes[0];
         bytes[3] += upload_bytes[1];
 
-        let download = cj.download - CHUNK_JSON_LIMITS.download_min;
+        let download = cjb.download - CHUNK_JSON_LIMITS.download_min;
         bytes[8] += ((download << 1) & 0b11111110u32).to_le_bytes()[0];
         let download_bytes = ((download >> 7) & 0b11111111_11111111u32).to_le_bytes();
         bytes[6] += download_bytes[0];
