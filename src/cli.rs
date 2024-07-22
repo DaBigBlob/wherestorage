@@ -7,7 +7,7 @@ use url::Url;
 #[command(help_template = "{bin} v{version}\n{about}\nAuthor : {author}\n\nUSAGE:\n    {usage}\n\n{all-args}\n")]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
-    /// Path to slave serial device Eg.: /dev/tty.usbserial
+    /// Action to take
     #[command(subcommand)]
     pub command: Subcmd
 }
