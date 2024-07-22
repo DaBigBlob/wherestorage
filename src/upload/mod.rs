@@ -21,12 +21,16 @@ async fn up_load_chunk(client: Client, _payload: u64) -> Result<u64>{
     client
     .post("https://www.speedtest.net/api/results.php")
     .body(
-        UpFinalPayload::new(
-            65456, 
-            1234, 
-            1234567,
-            1234567
-        ).new_json_string()?
+        {
+            let a = crate::utils::ChunkJson {
+                server_id: 501,
+                ping: 0,
+                upload: 9999999,
+                download: 9999999
+            }.to_string();
+            dbg!(&a);
+            a
+        }
     )
     .send().await
     .map_err(|e| Error::UploadResponseError(e))?
