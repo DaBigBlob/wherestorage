@@ -22,7 +22,7 @@ pub struct ChunkJsonLimits {
 }
 
 const CHUNK_JSON_LIMITS: ChunkJsonLimits = ChunkJsonLimits {
-    server_id_max: 11023, // 10bits // 2^10 -1 +server_id_min
+    server_id_max: 11024, // 10bits // 2^10 -1 +server_id_min
     server_id_min: 10000,
     ping_max: 65535, // 16bits // 2^16 -1 +ping_min
     ping_min: 0,

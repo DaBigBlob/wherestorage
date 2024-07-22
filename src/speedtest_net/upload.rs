@@ -16,7 +16,7 @@ pub async fn upload_file(file: PathBuf) -> Result<()> {
     let a = upload_chunk(
         client,
         ChunkBytes::try_from(ChunkJson {
-            server_id: 65535,
+            server_id: 10200,
             ping: 65535,
             upload: 8388608,
             download: 8388608
