@@ -4,7 +4,6 @@ use crate::speedtest_net::{request, net_utils::ChunkBytes, net_utils::ChunkJson}
 use reqwest::Client;
 use serde_json::Value;
 use std::fs;
-// use std::io::Read;
 use std::path::PathBuf;
 
 pub async fn upload_file(file: PathBuf) -> Result<()> {
@@ -12,7 +11,7 @@ pub async fn upload_file(file: PathBuf) -> Result<()> {
     let _file_data = fs::read(file)
         .map_err(|e| Error::from_err(e))?;
 
-    // file_data.take(limit)
+    let _a = _file_data.into_iter();
 
     let a = upload_chunk(client, ChunkBytes::from(ChunkJson {
         server_id: 65535,

@@ -8,6 +8,10 @@ pub struct ChunkBytes([u8; 9]);
 //     }
 // }
 
+// pub struct ChunkJsonLimits {
+//     pub server_id_max: 
+// }
+
 #[derive(Clone)]
 pub struct ChunkJson {
     pub server_id: u16,     // 10000 to 65462           :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
@@ -104,11 +108,19 @@ impl From<ChunkJson> for ChunkBytes {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Debug;
     use super::*;
+
+    impl Debug for ChunkJson {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ChunkJson").field("server_id", &self.server_id).field("ping", &self.ping).field("upload", &self.upload).field("download", &self.download).finish()
+        }
+    }
 
     #[test]
     fn max() {
         let a = ChunkJson::from(ChunkBytes([u8::MAX; 9]));
+        dbg!(&a);
         assert_eq!(a.upload, 2u32.pow(23) - 1 + 1);
         assert_eq!(a.upload, a.download);
     }
@@ -116,6 +128,7 @@ mod tests {
     #[test]
     fn min() {
         let b = ChunkJson::from(ChunkBytes([u8::MIN; 9]));
+        dbg!(&b);
         assert_eq!(b.upload, 1);
         assert_eq!(b.upload, b.download);
     }
