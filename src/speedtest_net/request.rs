@@ -1,5 +1,5 @@
 
-use crate::speedtest_net::prelude::*;
+use crate::prelude::*;
 use reqwest::{header::{HeaderMap, HeaderName, HeaderValue}, Client};
 
 pub fn client() -> Result<Client> {

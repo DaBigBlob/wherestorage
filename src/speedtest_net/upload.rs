@@ -1,5 +1,6 @@
 
-use crate::speedtest_net::{prelude::*, request, utils::ChunkBytes, utils::ChunkJson};
+use crate::prelude::*;
+use crate::speedtest_net::{request, utils::ChunkBytes, utils::ChunkJson};
 use reqwest::Client;
 use serde_json::Value;
 use std::path::PathBuf;

@@ -1,4 +1,5 @@
 
+mod prelude;
 mod cli;
 mod speedtest_net;
 
