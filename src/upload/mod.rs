@@ -22,7 +22,7 @@ async fn up_load_chunk(client: Client, _payload: u64) -> Result<u64>{
     .post("https://www.speedtest.net/api/results.php")
     .body(
         ChunkJson {
-            server_id: 5011,
+            server_id: 65463,
             ping: 0,
             upload: 9999999,
             download: 9999999
