@@ -10,7 +10,7 @@ pub fn client() -> Result<Client> {
         .brotli(true)
         .zstd(true)
         .build()
-        .map_err(|e| Error::UploadHttpClientInitError(e))        
+        .map_err(|e| Error::from_err(e))        
 }
 
 fn headermap() -> HeaderMap {

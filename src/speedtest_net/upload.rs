@@ -22,13 +22,13 @@ async fn up_load_chunk(client: Client, payload: ChunkBytes) -> Result<u64>{
     .post("https://www.speedtest.net/api/results.php")
     .body(ChunkJson::from(payload).to_string())
     .send().await
-    .map_err(|e| Error::UploadResponseError(e))?
+    .map_err(|e| Error::from_err(e))?
     .json::<Value>().await
-    .map_err(|e| Error::UploadJsonParseError(e))?
+    .map_err(|e| Error::from_err(e))?
     .get("resultid")
-    .ok_or(Error::UploadNoResultIDInResponse)?
+    .ok_or(Error::from_str("No 'resultid' in response"))?
     .as_u64()
-    .ok_or(Error::UploadResultIDNotu64)
+    .ok_or(Error::from_str("'resultid' not u64"))
 }
 
 
