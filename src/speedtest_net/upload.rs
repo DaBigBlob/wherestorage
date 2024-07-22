@@ -1,6 +1,6 @@
 
 use crate::prelude::*;
-use crate::speedtest_net::{request, utils::ChunkBytes, utils::ChunkJson};
+use crate::speedtest_net::{request, net_utils::ChunkBytes, net_utils::ChunkJson};
 use reqwest::Client;
 use serde_json::Value;
 use std::fs;
