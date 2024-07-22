@@ -3,7 +3,6 @@ mod prelude;
 mod cli;
 mod speedtest_net;
 
-use prelude::*;
 use clap::Parser;
 use cli::{Args, Subcmd};
 use speedtest_net::{download_file, upload_file};
