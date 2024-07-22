@@ -2,7 +2,7 @@
 pub mod request;
 pub mod payload;
 
-use crate::prelude::*;
+use crate::{prelude::*, utils::ChunkBytes};
 use reqwest::Client;
 use serde_json::Value;
 use std::path::PathBuf;
@@ -11,23 +11,21 @@ use crate::utils::ChunkJson;
 pub async fn upload(_file: PathBuf, _retries: u64) -> Result<()>{
     let client = request::client()?;
     
-    let a = up_load_chunk(client, 0).await?;
+    let a = up_load_chunk(client, ChunkBytes::from(ChunkJson {
+        server_id: 65462,
+        ping: 0,
+        upload: 9999999,
+        download: 9999999
+    })).await?;
     println!("https://www.speedtest.net/result/{}", a);
 
     Ok(())
 }
 
-async fn up_load_chunk(client: Client, _payload: u64) -> Result<u64>{
+async fn up_load_chunk(client: Client, payload: ChunkBytes) -> Result<u64>{
     client
     .post("https://www.speedtest.net/api/results.php")
-    .body(
-        ChunkJson {
-            server_id: 65463,
-            ping: 0,
-            upload: 9999999,
-            download: 9999999
-        }.to_string()
-    )
+    .body(ChunkJson::from(payload).to_string())
     .send().await
     .map_err(|e| Error::UploadResponseError(e))?
     .json::<Value>().await
