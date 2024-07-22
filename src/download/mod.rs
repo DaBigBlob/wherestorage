@@ -1,0 +1,7 @@
+
+use crate::prelude::*;
+use url::Url;
+
+pub async fn download(_url: Url, _depth: u64) -> Result<()>{
+    Err(Error::Unimplemented)
+}
