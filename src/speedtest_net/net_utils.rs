@@ -113,7 +113,13 @@ mod tests {
 
     impl Debug for ChunkJson {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ChunkJson").field("server_id", &self.server_id).field("ping", &self.ping).field("upload", &self.upload).field("download", &self.download).finish()
+            f
+            .debug_struct("ChunkJson")
+            .field("server_id", &self.server_id)
+            .field("ping", &self.ping)
+            .field("upload", &self.upload)
+            .field("download", &self.download)
+            .finish()
         }
     }
 
