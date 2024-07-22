@@ -10,7 +10,7 @@ pub struct ChunkBytes([u8; 9]);
 
 #[derive(Debug, Clone)]
 pub struct ChunkJson {
-    pub server_id: u16,     // 2000 to 65462           :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
+    pub server_id: u16,     // 10000 to 65462           :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
     pub ping: u16,          // 0 to 65536              :::: 65537  states ::~16bits ::2 bytes  ::16bit ::2B
     pub upload: u32,        // 1 to 9999999 (7 of them):::: 9999999states ::~23bits ::2.9 bytes::23bit ::2B + 7b
     pub download: u32,      // 1 to 9999999 (7 of them):::: 9999999states ::~23bits ::2.9 bytes::23bit ::2B + 7b
@@ -47,7 +47,7 @@ impl From<ChunkBytes> for ChunkJson {
      */
     fn from(cb: ChunkBytes) -> Self {
         let server_id: u16
-            = 2000u16
+            = 10000u16
             +  (((cb.0[0] as u16)        << 2) & 0b11111111_00u16)
             + ((((cb.0[7] as u16) & 0b1) << 1) & 0b1_0u16)
             +   ((cb.0[8] as u16) & 0b1);
@@ -74,7 +74,7 @@ impl From<ChunkJson> for ChunkBytes {
     fn from(cj: ChunkJson) -> Self {
         let mut bytes: [u8; 9] = [0; 9];
 
-        let mut server_id = cj.server_id - 2000u16;
+        let mut server_id = cj.server_id - 10000u16;
         bytes[8] += (server_id & 0b1).to_le_bytes()[0];
         server_id = (server_id >> 1) & 0b11111111_1u16;
         bytes[7] += (server_id & 0b1).to_le_bytes()[0];
