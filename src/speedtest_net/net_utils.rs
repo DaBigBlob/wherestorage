@@ -8,9 +8,27 @@ pub struct ChunkBytes([u8; 9]);
 //     }
 // }
 
-// pub struct ChunkJsonLimits {
-//     pub server_id_max: 
-// }
+pub struct ChunkJsonLimits {
+    pub server_id_max: u16,
+    pub server_id_min: u16,
+    pub ping_max: u16,
+    pub ping_min: u16,
+    pub upload_max: u32,
+    pub upload_min: u32,
+    pub download_max: u32,
+    pub download_min: u32,
+}
+
+const CHUNK_JSON_LIMITS: ChunkJsonLimits = ChunkJsonLimits {
+    server_id_max: 11023,
+    server_id_min: 10000,
+    ping_max: 65535,
+    ping_min: 0,
+    upload_max: 8388608,
+    upload_min: 1,
+    download_max: 8388608,
+    download_min: 1,
+};
 
 #[derive(Clone)]
 pub struct ChunkJson {
@@ -51,20 +69,21 @@ impl From<ChunkBytes> for ChunkJson {
      */
     fn from(cb: ChunkBytes) -> Self {
         let server_id: u16
-            = 10000u16
+            = CHUNK_JSON_LIMITS.server_id_min
             +  (((cb.0[0] as u16)        << 2) & 0b11111111_00u16)
             + ((((cb.0[7] as u16) & 0b1) << 1) & 0b1_0u16)
             +   ((cb.0[8] as u16) & 0b1);
         let ping: u16
-            = (((cb.0[1] as u16) << 8) & 0b11111111_00000000u16)
+            = CHUNK_JSON_LIMITS.ping_min
+            + (((cb.0[1] as u16) << 8) & 0b11111111_00000000u16)
             +  ((cb.0[2] as u16)       & 0b11111111u16);
         let upload: u32
-            = 1u32
+            = CHUNK_JSON_LIMITS.upload_min
             + (((cb.0[3] as u32) << (8+7)) & 0b11111111_00000000_0000000u32)
             + (((cb.0[4] as u32) << 7    ) & 0b11111111_0000000u32)
             + (((cb.0[7] as u32) >> 1    ) & 0b1111111u32);
         let download: u32
-            = 1u32
+            = CHUNK_JSON_LIMITS.upload_min
             + (((cb.0[5] as u32) << (8+7)) & 0b11111111_00000000_0000000u32)
             + (((cb.0[6] as u32) << 7    ) & 0b11111111_0000000u32)
             + (((cb.0[8] as u32) >> 1    ) & 0b1111111u32);
@@ -78,24 +97,24 @@ impl From<ChunkJson> for ChunkBytes {
     fn from(cj: ChunkJson) -> Self {
         let mut bytes: [u8; 9] = [0; 9];
 
-        let mut server_id = cj.server_id - 10000u16;
+        let mut server_id = cj.server_id - CHUNK_JSON_LIMITS.server_id_min;
         bytes[8] += (server_id & 0b1).to_le_bytes()[0];
         server_id = (server_id >> 1) & 0b11111111_1u16;
         bytes[7] += (server_id & 0b1).to_le_bytes()[0];
         server_id = (server_id >> 1) & 0b11111111u16;
         bytes[0] += server_id.to_le_bytes()[0];
 
-        let ping = cj.ping.to_le_bytes();
+        let ping = (cj.ping - CHUNK_JSON_LIMITS.ping_min).to_le_bytes();
         bytes[2] += ping[0];
         bytes[1] += ping[1];
 
-        let upload = cj.upload - 1;
+        let upload = cj.upload - CHUNK_JSON_LIMITS.upload_min;
         bytes[7] += ((upload << 1) & 0b11111110u32).to_le_bytes()[0];
         let upload_bytes = ((upload >> 7) & 0b11111111_11111111u32).to_le_bytes();
         bytes[4] += upload_bytes[0];
         bytes[3] += upload_bytes[1];
 
-        let download = cj.download - 1;
+        let download = cj.download - CHUNK_JSON_LIMITS.download_min;
         bytes[8] += ((download << 1) & 0b11111110u32).to_le_bytes()[0];
         let download_bytes = ((download >> 7) & 0b11111111_11111111u32).to_le_bytes();
         bytes[6] += download_bytes[0];
