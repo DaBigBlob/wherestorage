@@ -1,5 +1,5 @@
 
-use std::{fmt::Display, io::{stdout, Write}, process};
+// use std::{fmt::Display, io::{stdout, Write}, process, rc::Rc};
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -14,9 +14,18 @@ pub enum Error {
     Unimplemented
 }
 
-// pub enum Error {
+// #[allow(dead_code)]
+// #[derive(Debug)]
+// pub enum _Error {
 //     Message(String),
-//     Underlying(Error)
+//     UnderlyingError(serde_json::Error),
+//     UnderlyingError(reqwest::Error),
+// }
+
+// impl _Error {
+//     fn from_err(e: std::error::Error)-> Self {
+//         Self::UnderlyingError(Rc::new(e))
+//     }
 // }
 
 pub type Result<T> = core::result::Result<T, Error>;
