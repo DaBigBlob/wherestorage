@@ -5,7 +5,7 @@ use serde_json::Value;
 use std::path::PathBuf;
 use crate::utils::ChunkJson;
 
-pub async fn upload(_file: PathBuf, _retries: u64) -> Result<()>{
+pub async fn upload_file(_file: PathBuf, _retries: u64) -> Result<()>{
     let client = request::client()?;
     
     let a = up_load_chunk(client, ChunkBytes::from(ChunkJson {
