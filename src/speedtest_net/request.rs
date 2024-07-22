@@ -16,17 +16,6 @@ pub fn client() -> Result<Client> {
 fn headermap() -> HeaderMap {
     let mut h = HeaderMap::new();
 
-    // {
-    //     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0",
-    //     "Accept": "application/json, text/plain, */*",
-    //     "Accept-Language": "en-US,en;q=0.5",
-    //     "Content-Type": "application/json;charset=UTF-8",
-    //     "Sec-GPC": "1",
-    //     "Sec-Fetch-Dest": "empty",
-    //     "Sec-Fetch-Mode": "cors",
-    //     "Sec-Fetch-Site": "same-origin"
-    // }
-
     h.insert(
         HeaderName::from_static("user-agent"),
         HeaderValue::from_static("Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0")
