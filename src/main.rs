@@ -4,6 +4,7 @@ mod cli;
 mod download;
 mod upload;
 mod utils;
+mod speedtest_net;
 
 use prelude::*;
 use clap::Parser;

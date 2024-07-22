@@ -1,7 +1,5 @@
 
-pub mod request;
-
-use crate::{prelude::*, utils::ChunkBytes};
+use crate::{prelude::*, speedtest_net::request, utils::ChunkBytes};
 use reqwest::Client;
 use serde_json::Value;
 use std::path::PathBuf;
