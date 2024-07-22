@@ -109,11 +109,11 @@ impl From<ChunkJson> for ChunkBytes {
 #[cfg(test)]
 mod tests {
     use std::fmt::Debug;
-    use std::fmt::Formatter;
+    use std::fmt::{self, Formatter};
     use super::*;
 
     impl Debug for ChunkJson {
-        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
             f
             .debug_struct("ChunkJson")
             .field("server_id", &self.server_id)
