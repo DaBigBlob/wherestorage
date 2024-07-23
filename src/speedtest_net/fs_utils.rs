@@ -40,9 +40,9 @@ use std::io;
     so dont check for it if intrim file under 14bytes
 */
 pub struct FileDeclaration {
-    name: Option<String>,   // 0 to 255 bytes
+    pub name: Option<String>,   // 0 to 255 bytes
     /// number of file bytes
-    size: u64
+    pub size: u64
 }
 
 impl FileDeclaration {
@@ -53,21 +53,24 @@ impl FileDeclaration {
             )
         }
     }
-    pub fn into_writer(self, r: &mut impl io::Write) -> Result<()> {
+    pub fn to_writer(&self, r: &mut impl io::Write) -> Result<()> {
         let mut v = Vec::new();
         v.push(u8::MAX); // declaration
-        match self.name { // deal with the name
+        match &self.name { // deal with the name
             None => v.push(0),
             Some(s) => {
                 v.push(s.len().to_le_bytes()[0]);
                 v.extend_from_slice(s.as_bytes());
             }
         };
-        v.extend_from_slice(self.size.to_le_bytes().as_slice());
+        v.extend_from_slice(&self.size.to_le_bytes().as_slice());
         r.write_all(v.as_slice()).map_err(|e| Error::from_err(e))
     }
-    pub fn into_write_flushed(self, r: &mut impl io::Write) -> Result<()> {
-        self.into_writer(r)?;
+    pub fn to_write_flushed(self, r: &mut impl io::Write) -> Result<()> {
+        self.to_writer(r)?;
         r.flush().map_err(|e| Error::from_err(e))
+    }
+    pub fn from_reader(r: &impl io::Read) -> Result<Self> {
+        todo!()
     }
 }
