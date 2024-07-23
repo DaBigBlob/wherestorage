@@ -8,7 +8,8 @@
     has 2 phases:
         - UnitToIntrimFileDescriptor
         - IntrimFileDescriptorToFull
-    8B
+    [decompression]
+    8B (unit)
     -> 9B   :: 1u64 1u8 :: 2
     -> 9*2B :: 1u64 
 */
@@ -23,6 +24,23 @@ pub struct IntrimFileDeclaration {
     to_uncompressed: u32,   // static size
     file_epoch: u64         // static size
 }
+
+/* plan [FINAL TILL NOW]
+    have a file_descriptor that states:
+        - name of file
+        - size of file
+        - itrs to fully decompressed
+        - etc.
+    this almost definitely has a size more than 9 bytes (chunk)
+    this descriptor startes with 0b11111111u8
+    [while decompressing]
+    we start at unit
+    we keep decompressing while ignoring the 1st byte as compressed data
+    but checking the 1st byte for 0b11111111u8
+    after receiving the file_descriptor, we comtinue as normal till fully decompressed
+    [while compressing]
+    we already know the contents of the FD so no need to bother
+*/
 
 // pub enum IntrimFileWritable {
 // }
