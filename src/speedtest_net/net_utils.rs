@@ -32,7 +32,7 @@ const CHUNK_JSON_LIMITS: ChunkJsonLimits = ChunkJsonLimits {
 };
 
 pub struct ChunkJson {
-    pub server_id: u16,     // 10000 to 65462           :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
+    pub server_id: u16,     // 10000 to 65462          :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
     pub ping: u16,          // 0 to 65536              :::: 65537  states ::~16bits ::2 bytes  ::16bit ::2B
     pub upload: u32,        // 1 to 9999999 (7 of them):::: 9999999states ::~23bits ::2.9 bytes::23bit ::2B + 7b
     pub download: u32,      // 1 to 9999999 (7 of them):::: 9999999states ::~23bits ::2.9 bytes::23bit ::2B + 7b
