@@ -79,9 +79,12 @@ impl FileDeclaration {
             sign != [0b11111111u8]
         } {
             Ok(None)
-        } else {
+        } 
+        
+        else {
             let mut name_len = [0u8; 1];
             r.read_exact(name_len.as_mut_slice()).map_err(|e| Error::from_err(e))?;
+
             let name: Option<String> = match name_len[0] {
                 0 => None,
                 s => {
@@ -90,7 +93,14 @@ impl FileDeclaration {
                     Some(String::from_utf8(name_bytes).map_err(|e| Error::from_err(e))?)
                 }
             };
-            todo!()
+
+            let size: u64 = {
+                let mut size_bytes = [0u8; 8];
+                r.read_exact(size_bytes.as_mut_slice()).map_err(|e| Error::from_err(e))?;
+                u64::from_le_bytes(size_bytes)
+            };
+
+            Ok(Some(Self { name, size }))
         }
     }
 }
