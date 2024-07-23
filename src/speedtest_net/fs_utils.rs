@@ -74,11 +74,22 @@ impl FileDeclaration {
     }
     pub fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>> {
         if {
-            let mut sign = [0u8];
+            let mut sign = [0u8; 1];
             r.read_exact(sign.as_mut_slice()).map_err(|e| Error::from_err(e))?;
             sign != [0b11111111u8]
-        } {Ok(None)}
-        else {
+        } {
+            Ok(None)
+        } else {
+            let mut name_len = [0u8; 1];
+            r.read_exact(name_len.as_mut_slice()).map_err(|e| Error::from_err(e))?;
+            let name: Option<String> = match name_len[0] {
+                0 => None,
+                s => {
+                    let mut name_bytes: Vec<u8> = Vec::with_capacity(s.into());
+                    r.read_exact(name_bytes.as_mut_slice()).map_err(|e| Error::from_err(e))?;
+                    Some(String::from_utf8(name_bytes).map_err(|e| Error::from_err(e))?)
+                }
+            };
             todo!()
         }
     }
