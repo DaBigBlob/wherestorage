@@ -1,4 +1,7 @@
 
+use crate::prelude::*;
+use std::io;
+
 /*  next_delta from file_epoch
     0b0 << (8*1-1) :: 2^7 = 128 states
     0b1 << (8*4-1) :: 2^31 = 2147483648 states
@@ -13,17 +16,6 @@
     -> 9B   :: 1u64 1u8 :: 2
     -> 9*2B :: 1u64 
 */
-
-/*
-    must start with 0b11111111u8
-    size: 1+1+4+8 to 1+1+255+4+8 = 14 to 269 bytes
-    so dont check for it if intrim file under 14bytes
-*/
-pub struct IntrimFileDeclaration {
-    name: Option<String>,   // 0 to 255 bytes
-    to_uncompressed: u32,   // static size
-    file_epoch: u64         // static size
-}
 
 /* plan [FINAL TILL NOW]
     have a file_descriptor that states:
@@ -42,5 +34,40 @@ pub struct IntrimFileDeclaration {
     we already know the contents of the FD so no need to bother
 */
 
-// pub enum IntrimFileWritable {
-// }
+/*
+    must start with 0b11111111u8
+    size: 1+1+4+8 to 1+1+255+4+8 = 14 to 269 bytes
+    so dont check for it if intrim file under 14bytes
+*/
+pub struct FileDeclaration {
+    name: Option<String>,   // 0 to 255 bytes
+    /// number of file bytes
+    size: u64
+}
+
+impl FileDeclaration {
+    pub fn new(name: Option<String>, size: u64) -> Result<Self> {
+        if name.as_ref().is_some_and(|n| n.len() > u8::MAX.into()) {Err(Error::from_str("File name too big (max 255 bytes)"))}
+        else {
+            Ok(FileDeclaration {name, size}
+            )
+        }
+    }
+    pub fn into_writer(self, r: &mut impl io::Write) -> Result<()> {
+        let mut v = Vec::new();
+        v.push(u8::MAX); // declaration
+        match self.name { // deal with the name
+            None => v.push(0),
+            Some(s) => {
+                v.push(s.len().to_le_bytes()[0]);
+                v.extend_from_slice(s.as_bytes());
+            }
+        };
+        v.extend_from_slice(self.size.to_le_bytes().as_slice());
+        r.write_all(v.as_slice()).map_err(|e| Error::from_err(e))
+    }
+    pub fn into_write_flushed(self, r: &mut impl io::Write) -> Result<()> {
+        self.into_writer(r)?;
+        r.flush().map_err(|e| Error::from_err(e))
+    }
+}
