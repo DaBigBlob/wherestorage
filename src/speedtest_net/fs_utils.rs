@@ -72,7 +72,14 @@ impl FileDeclaration {
         self.to_writer(r)?;
         r.flush().map_err(|e| Error::from_err(e))
     }
-    pub fn from_reader(r: &impl io::Read) -> Result<Self> {
-        todo!()
+    pub fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>> {
+        if {
+            let mut sign = [0u8];
+            r.read_exact(sign.as_mut_slice()).map_err(|e| Error::from_err(e))?;
+            sign != [0b11111111u8]
+        } {Ok(None)}
+        else {
+            todo!()
+        }
     }
 }
