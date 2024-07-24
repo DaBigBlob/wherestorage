@@ -88,7 +88,7 @@ impl FileDeclaration {
             let name: Option<String> = match name_len[0] {
                 0 => None,
                 s => {
-                    let mut name_bytes: Vec<u8> = Vec::with_capacity(s.into());
+                    let mut name_bytes = vec![0; s as usize];
                     r.read_exact(name_bytes.as_mut_slice()).map_err(|e| Error::from_err(e))?;
                     Some(String::from_utf8(name_bytes).map_err(|e| Error::from_err(e))?)
                 }
