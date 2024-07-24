@@ -50,10 +50,7 @@ pub struct FileDeclaration {
 impl FileDeclaration {
     pub fn new(name: Option<String>, size: u64) -> Result<Self> {
         if name.as_ref().is_some_and(|n| n.len() > u8::MAX.into()) {Err(Error::from_str("File name too big (max 255 bytes)"))}
-        else {
-            Ok(FileDeclaration {name, size}
-            )
-        }
+        else {Ok(FileDeclaration {name, size})}
     }
     pub fn to_writer(&self, r: &mut impl io::Write) -> Result<()> {
         let mut v = Vec::new();
