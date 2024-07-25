@@ -65,7 +65,7 @@ impl FileDeclaration {
         v.extend_from_slice(&self.size.to_le_bytes().as_slice());
         r.write_all(v.as_slice()).map_err(|e| Error::from_err(e))
     }
-    pub fn to_write_flushed(self, r: &mut impl io::Write) -> Result<()> {
+    pub fn to_writer_flushed(self, r: &mut impl io::Write) -> Result<()> {
         self.to_writer(r)?;
         r.flush().map_err(|e| Error::from_err(e))
     }
