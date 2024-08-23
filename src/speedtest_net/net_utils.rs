@@ -56,19 +56,16 @@ impl std::fmt::Display for ChunkJson {
 impl ChunkJson {
     pub fn is_bytable(self) -> Result<Self> {
         if !(CHUNK_JSON_LIMITS.server_id_min..=CHUNK_JSON_LIMITS.server_id_max)
-            .contains(&self.server_id)
-        {
+            .contains(&self.server_id) {
             bail!("'serverid' is not in range.")
         } else if !(CHUNK_JSON_LIMITS.ping_min..=CHUNK_JSON_LIMITS.ping_max)
             .contains(&self.ping) {
             bail!("'ping' is not in range.")
         } else if !(CHUNK_JSON_LIMITS.upload_min..=CHUNK_JSON_LIMITS.upload_max)
-            .contains(&self.upload)
-        {
+            .contains(&self.upload) {
             bail!("'upload' is not in range.")
         } else if !(CHUNK_JSON_LIMITS.download_min..=CHUNK_JSON_LIMITS.download_max)
-            .contains(&self.download)
-        {
+            .contains(&self.download) {
             bail!("'download' is not in range")
         } else {
             Ok(self)
@@ -89,20 +86,20 @@ impl From<ChunkBytes> for ChunkJson {
     */
     fn from(cb: ChunkBytes) -> Self {
         let server_id: u16 = CHUNK_JSON_LIMITS.server_id_min
-            + (((cb.0[0] as u16) << 2) & 0b11111111_00u16)
-            + ((((cb.0[7] as u16) & 0b1) << 1) & 0b1_0u16)
-            + ((cb.0[8] as u16) & 0b1);
+            +  (((cb.0[0] as u16)           << 2) & 0b11111111_00u16)
+            + ((((cb.0[7] as u16) & 0b1)    << 1) & 0b1_0u16)
+            +   ((cb.0[8] as u16) & 0b1);
         let ping: u16 = CHUNK_JSON_LIMITS.ping_min
-            + (((cb.0[1] as u16) << 8) & 0b11111111_00000000u16)
-            + ((cb.0[2] as u16) & 0b11111111u16);
+            + (((cb.0[1] as u16) << 8)  & 0b11111111_00000000u16)
+            +  ((cb.0[2] as u16)        & 0b11111111u16);
         let upload: u32 = CHUNK_JSON_LIMITS.upload_min
             + (((cb.0[3] as u32) << (8 + 7)) & 0b11111111_00000000_0000000u32)
-            + (((cb.0[4] as u32) << 7) & 0b11111111_0000000u32)
-            + (((cb.0[7] as u32) >> 1) & 0b1111111u32);
+            + (((cb.0[4] as u32) << 7      ) & 0b11111111_0000000u32)
+            + (((cb.0[7] as u32) >> 1      ) & 0b1111111u32);
         let download: u32 = CHUNK_JSON_LIMITS.upload_min
             + (((cb.0[5] as u32) << (8 + 7)) & 0b11111111_00000000_0000000u32)
-            + (((cb.0[6] as u32) << 7) & 0b11111111_0000000u32)
-            + (((cb.0[8] as u32) >> 1) & 0b1111111u32);
+            + (((cb.0[6] as u32) << 7      ) & 0b11111111_0000000u32)
+            + (((cb.0[8] as u32) >> 1      ) & 0b1111111u32);
 
         Self {
             server_id,

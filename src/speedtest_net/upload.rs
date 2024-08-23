@@ -8,9 +8,7 @@ use std::path::PathBuf;
 pub async fn upload_file(file: PathBuf) -> Result<()> {
     let client = request::client()?;
     let _file_data = fs::read(file)?;
-
-    let _a = _file_data.into_iter();
-
+    
     let a = upload_chunk(
         client,
         ChunkBytes::try_from(ChunkJson {
@@ -21,7 +19,7 @@ pub async fn upload_file(file: PathBuf) -> Result<()> {
         })?,
     )
     .await?;
-    println!("https://www.speedtest.net/result/{}", a);
+    println!("https://www.speedtest.net/result/{}", a); //TODO: remove this
 
     Ok(())
 }
