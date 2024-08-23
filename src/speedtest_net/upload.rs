@@ -1,6 +1,5 @@
-
 use crate::prelude::*;
-use crate::speedtest_net::{request, net_utils::ChunkBytes, net_utils::ChunkJson};
+use crate::speedtest_net::{net_utils::ChunkBytes, net_utils::ChunkJson, request};
 use reqwest::Client;
 use serde_json::Value;
 use std::fs;
@@ -8,8 +7,7 @@ use std::path::PathBuf;
 
 pub async fn upload_file(file: PathBuf) -> Result<()> {
     let client = request::client()?;
-    let _file_data = fs::read(file)
-        .map_err(|e| Error::from_err(e))?;
+    let _file_data = fs::read(file).map_err(Error::from_err)?;
 
     let _a = _file_data.into_iter();
 
@@ -19,28 +17,30 @@ pub async fn upload_file(file: PathBuf) -> Result<()> {
             server_id: 10200,
             ping: 65535,
             upload: 8388608,
-            download: 8388608
-        })?
-    ).await?;
+            download: 8388608,
+        })?,
+    )
+    .await?;
     println!("https://www.speedtest.net/result/{}", a);
 
     Ok(())
 }
 
-async fn upload_chunk(client: Client, payload: ChunkBytes) -> Result<u64>{
+async fn upload_chunk(client: Client, payload: ChunkBytes) -> Result<u64> {
     client
-    .post("https://www.speedtest.net/api/results.php")
-    .body(ChunkJson::from(payload).to_string())
-    .send().await
-    .map_err(|e| Error::from_err(e))?
-    .json::<Value>().await
-    .map_err(|e| Error::from_err(e))?
-    .get("resultid")
-    .ok_or(Error::from_str("No 'resultid' in response"))?
-    .as_u64()
-    .ok_or(Error::from_str("'resultid' not u64"))
+        .post("https://www.speedtest.net/api/results.php")
+        .body(ChunkJson::from(payload).to_string())
+        .send()
+        .await
+        .map_err(Error::from_err)?
+        .json::<Value>()
+        .await
+        .map_err(Error::from_err)?
+        .get("resultid")
+        .ok_or(Error::from_str("No 'resultid' in response"))?
+        .as_u64()
+        .ok_or(Error::from_str("'resultid' not u64"))
 }
-
 
 // struct UpChunkProcessed {
 //     epoch_delta: u64,
@@ -62,4 +62,3 @@ async fn upload_chunk(client: Client, payload: ChunkBytes) -> Result<u64>{
 
 //     UpChunkProcessed { epoch_delta, can_be_cast_as }
 // }
-

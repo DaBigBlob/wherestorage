@@ -1,4 +1,3 @@
-
 use crate::prelude::*;
 use std::io;
 
@@ -14,7 +13,7 @@ use std::io;
     [decompression]
     8B (unit)
     -> 9B   :: 1u64 1u8 :: 2
-    -> 9*2B :: 1u64 
+    -> 9*2B :: 1u64
 */
 
 /* plan [FINAL TILL NOW]
@@ -41,59 +40,65 @@ use std::io;
 */
 #[allow(dead_code)]
 pub struct FileDeclaration {
-    pub name: Option<String>,   // 0 to 255 bytes
+    pub name: Option<String>, // 0 to 255 bytes
     /// number of file bytes
-    pub size: u64
+    pub size: u64,
 }
 
 #[allow(dead_code)]
 impl FileDeclaration {
     pub fn new(name: Option<String>, size: u64) -> Result<Self> {
-        if name.as_ref().is_some_and(|n| n.len() > u8::MAX.into()) {Err(Error::from_str("File name too big (max 255 bytes)"))}
-        else {Ok(FileDeclaration {name, size})}
+        if name.as_ref().is_some_and(|n| n.len() > u8::MAX.into()) {
+            Err(Error::from_str("File name too big (max 255 bytes)"))
+        } else {
+            Ok(FileDeclaration { name, size })
+        }
     }
     pub fn to_writer(&self, r: &mut impl io::Write) -> Result<()> {
         let mut v = Vec::new();
         v.push(u8::MAX); // declaration
-        match &self.name { // deal with the name
+        match &self.name {
+            // deal with the name
             None => v.push(0),
             Some(s) => {
                 v.push(s.len().to_le_bytes()[0]);
                 v.extend_from_slice(s.as_bytes());
             }
         };
-        v.extend_from_slice(&self.size.to_le_bytes().as_slice());
-        r.write_all(v.as_slice()).map_err(|e| Error::from_err(e))
+        v.extend_from_slice(self.size.to_le_bytes().as_slice());
+        r.write_all(v.as_slice()).map_err(Error::from_err)
     }
     pub fn to_writer_flushed(self, r: &mut impl io::Write) -> Result<()> {
         self.to_writer(r)?;
-        r.flush().map_err(|e| Error::from_err(e))
+        r.flush().map_err(Error::from_err)
     }
     pub fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>> {
-        if {
+        let res = {
             let mut sign = [0u8; 1];
-            r.read_exact(sign.as_mut_slice()).map_err(|e| Error::from_err(e))?;
+            r.read_exact(sign.as_mut_slice())
+                .map_err(Error::from_err)?;
             sign != [0b11111111u8]
-        } {
+        }; if res {
             Ok(None)
-        } 
-        
-        else {
+        } else {
             let mut name_len = [0u8; 1];
-            r.read_exact(name_len.as_mut_slice()).map_err(|e| Error::from_err(e))?;
+            r.read_exact(name_len.as_mut_slice())
+                .map_err(Error::from_err)?;
 
             let name: Option<String> = match name_len[0] {
                 0 => None,
                 s => {
                     let mut name_bytes = vec![0; s as usize];
-                    r.read_exact(name_bytes.as_mut_slice()).map_err(|e| Error::from_err(e))?;
-                    Some(String::from_utf8(name_bytes).map_err(|e| Error::from_err(e))?)
+                    r.read_exact(name_bytes.as_mut_slice())
+                        .map_err(Error::from_err)?;
+                    Some(String::from_utf8(name_bytes).map_err(Error::from_err)?)
                 }
             };
 
             let size: u64 = {
                 let mut size_bytes = [0u8; 8];
-                r.read_exact(size_bytes.as_mut_slice()).map_err(|e| Error::from_err(e))?;
+                r.read_exact(size_bytes.as_mut_slice())
+                    .map_err(Error::from_err)?;
                 u64::from_le_bytes(size_bytes)
             };
 

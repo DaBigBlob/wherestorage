@@ -1,4 +1,3 @@
-
 use std::fmt::Display;
 
 pub struct Error(String);
@@ -6,7 +5,7 @@ pub struct Error(String);
 #[allow(dead_code)]
 impl Error {
     pub fn from_err(e: impl Display) -> Self {
-        Self(format!("Underlying Error: {}", e.to_string()))
+        Self(format!("Underlying Error: {}", e))
     }
 
     pub fn from_str(str: &str) -> Self {
