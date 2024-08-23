@@ -1,12 +1,6 @@
 use anyhow::{bail, Result};
 pub struct ChunkBytes([u8; 9]);
 
-// impl ChunkBytes {
-//     fn to_bytes(self) -> [u8; 9] {
-//         self.0
-//     }
-// }
-
 pub struct ChunkJsonLimits {
     pub server_id_max: u16,
     pub server_id_min: u16,
