@@ -16,5 +16,6 @@ tokio = { version = "1.38.1", features = ["macros", "rt-multi-thread"] }
 url = "2.5.2"
 
 [profile.release]
-opt-level = 2
+opt-level = 3
 lto = true
+codegen-units = 1
