@@ -1,5 +1,4 @@
-use crate::prelude::{self, *};
-
+use anyhow::{bail, Result};
 pub struct ChunkBytes([u8; 9]);
 
 // impl ChunkBytes {
@@ -59,17 +58,17 @@ impl ChunkJson {
         if !(CHUNK_JSON_LIMITS.server_id_min..=CHUNK_JSON_LIMITS.server_id_max)
             .contains(&self.server_id)
         {
-            Err(Error::from_str("'serverid' is not in range."))
+            bail!("'serverid' is not in range.")
         } else if !(CHUNK_JSON_LIMITS.ping_min..=CHUNK_JSON_LIMITS.ping_max).contains(&self.ping) {
-            Err(Error::from_str("'ping' is not in range."))
+            bail!("'ping' is not in range.")
         } else if !(CHUNK_JSON_LIMITS.upload_min..=CHUNK_JSON_LIMITS.upload_max)
             .contains(&self.upload)
         {
-            Err(Error::from_str("'upload' is not in range."))
+            bail!("'upload' is not in range.")
         } else if !(CHUNK_JSON_LIMITS.download_min..=CHUNK_JSON_LIMITS.download_max)
             .contains(&self.download)
         {
-            Err(Error::from_str("'download' is not in range."))
+            bail!("'download' is not in range")
         } else {
             Ok(self)
         }
@@ -114,9 +113,9 @@ impl From<ChunkBytes> for ChunkJson {
 }
 
 impl TryFrom<ChunkJson> for ChunkBytes {
-    type Error = prelude::Error;
+    type Error = anyhow::Error;
 
-    fn try_from(cj: ChunkJson) -> std::result::Result<Self, Self::Error> {
+    fn try_from(cj: ChunkJson) -> Result<Self> {
         let cjb = cj.is_bytable()?;
         let mut bytes: [u8; 9] = [0; 9];
 
@@ -161,12 +160,6 @@ mod tests {
                 .field("upload", &self.upload)
                 .field("download", &self.download)
                 .finish()
-        }
-    }
-
-    impl Debug for prelude::Error {
-        fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-            f.debug_tuple("Error").field(&self.to_string()).finish()
         }
     }
 

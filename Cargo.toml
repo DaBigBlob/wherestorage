@@ -6,6 +6,7 @@ authors = ["DaBigBlob <hman@hman.io>"]
 description = "Storing things where we aren't supposed to"
 
 [dependencies]
+anyhow = "1.0.86"
 clap = { version = "4.5.9", features = ["derive"] }
 clap-num = "1.1.1"
 md5 = "0.7.0"

@@ -1,5 +1,5 @@
-use crate::prelude::*;
 use crate::speedtest_net::{net_utils::ChunkBytes, net_utils::ChunkJson, request};
+use anyhow::{Context, Result};
 use reqwest::Client;
 use serde_json::Value;
 use std::fs;
@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 pub async fn upload_file(file: PathBuf) -> Result<()> {
     let client = request::client()?;
-    let _file_data = fs::read(file).map_err(Error::from_err)?;
+    let _file_data = fs::read(file)?;
 
     let _a = _file_data.into_iter();
 
@@ -31,15 +31,13 @@ async fn upload_chunk(client: Client, payload: ChunkBytes) -> Result<u64> {
         .post("https://www.speedtest.net/api/results.php")
         .body(ChunkJson::from(payload).to_string())
         .send()
-        .await
-        .map_err(Error::from_err)?
+        .await?
         .json::<Value>()
-        .await
-        .map_err(Error::from_err)?
+        .await?
         .get("resultid")
-        .ok_or(Error::from_str("No 'resultid' in response"))?
+        .context("No 'resultid' in response")?
         .as_u64()
-        .ok_or(Error::from_str("'resultid' not u64"))
+        .context("'resultid' not u64")
 }
 
 // struct UpChunkProcessed {

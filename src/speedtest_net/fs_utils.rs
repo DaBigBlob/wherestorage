@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use anyhow::{bail, Context, Result};
 use std::io;
 
 /*  next_delta from file_epoch
@@ -49,11 +49,12 @@ pub struct FileDeclaration {
 impl FileDeclaration {
     pub fn new(name: Option<String>, size: u64) -> Result<Self> {
         if name.as_ref().is_some_and(|n| n.len() > u8::MAX.into()) {
-            Err(Error::from_str("File name too big (max 255 bytes)"))
+            bail!("File name too big (max 255 bytes)")
         } else {
             Ok(FileDeclaration { name, size })
         }
     }
+
     pub fn to_writer(&self, r: &mut impl io::Write) -> Result<()> {
         let mut v = Vec::new();
         v.push(u8::MAX); // declaration
@@ -66,39 +67,38 @@ impl FileDeclaration {
             }
         };
         v.extend_from_slice(self.size.to_le_bytes().as_slice());
-        r.write_all(v.as_slice()).map_err(Error::from_err)
+        r.write_all(v.as_slice()).context("unable to write_all")
     }
+
     pub fn to_writer_flushed(self, r: &mut impl io::Write) -> Result<()> {
         self.to_writer(r)?;
-        r.flush().map_err(Error::from_err)
+        r.flush().context("unable to flush writer")
     }
+
     pub fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>> {
         let res = {
             let mut sign = [0u8; 1];
-            r.read_exact(sign.as_mut_slice())
-                .map_err(Error::from_err)?;
+            r.read_exact(sign.as_mut_slice())?;
             sign != [0b11111111u8]
-        }; if res {
+        };
+        if res {
             Ok(None)
         } else {
             let mut name_len = [0u8; 1];
-            r.read_exact(name_len.as_mut_slice())
-                .map_err(Error::from_err)?;
+            r.read_exact(name_len.as_mut_slice())?;
 
             let name: Option<String> = match name_len[0] {
                 0 => None,
                 s => {
                     let mut name_bytes = vec![0; s as usize];
-                    r.read_exact(name_bytes.as_mut_slice())
-                        .map_err(Error::from_err)?;
-                    Some(String::from_utf8(name_bytes).map_err(Error::from_err)?)
+                    r.read_exact(name_bytes.as_mut_slice())?;
+                    Some(String::from_utf8(name_bytes)?)
                 }
             };
 
             let size: u64 = {
                 let mut size_bytes = [0u8; 8];
-                r.read_exact(size_bytes.as_mut_slice())
-                    .map_err(Error::from_err)?;
+                r.read_exact(size_bytes.as_mut_slice())?;
                 u64::from_le_bytes(size_bytes)
             };
 

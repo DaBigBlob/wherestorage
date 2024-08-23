@@ -1,5 +1,4 @@
 mod cli;
-mod prelude;
 mod speedtest_net;
 
 use clap::Parser;
@@ -13,7 +12,7 @@ async fn main() {
         Subcmd::Up { file } => upload_file(file).await,
     }
     .unwrap_or_else(|e| {
-        eprintln!("Error: {}", e.into_string());
+        eprintln!("Error: {:?}", e);
         std::process::exit(1);
     })
 }

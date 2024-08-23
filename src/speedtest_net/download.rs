@@ -1,6 +1,6 @@
-use crate::prelude::*;
+use anyhow::{bail, Result};
 use url::Url;
 
 pub async fn download_file(_url: Url) -> Result<()> {
-    Err(Error::from_str("Unimplemented"))
+    bail!("Unimplemented")
 }

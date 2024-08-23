@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use anyhow::{Context, Result};
 use reqwest::{
     header::{HeaderMap, HeaderName, HeaderValue},
     Client,
@@ -12,7 +12,7 @@ pub fn client() -> Result<Client> {
         .brotli(true)
         .zstd(true)
         .build()
-        .map_err(Error::from_err)
+        .context("could not build http client")
 }
 
 fn headermap() -> HeaderMap {
