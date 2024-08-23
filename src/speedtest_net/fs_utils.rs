@@ -46,6 +46,17 @@ pub struct FileDeclaration {
 }
 
 #[allow(dead_code)]
+impl FileDeclaration {
+    pub fn new(name: Option<String>, size: u64) -> Result<Self> {
+        if name.as_ref().is_some_and(|n| n.len() > u8::MAX.into()) {
+            bail!("File name too big (max 255 bytes)")
+        } else {
+            Ok(FileDeclaration { name, size })
+        }
+    }
+}
+
+#[allow(dead_code)]
 pub trait ToAndFromFS where Self: Sized {
     fn to_writer(&self, r: &mut impl io::Write) -> Result<()>;
 
@@ -56,17 +67,6 @@ pub trait ToAndFromFS where Self: Sized {
 
     /// Result<None> means no error but does not exist (and it may not exist)
     fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>>;
-}
-
-#[allow(dead_code)]
-impl FileDeclaration {
-    pub fn new(name: Option<String>, size: u64) -> Result<Self> {
-        if name.as_ref().is_some_and(|n| n.len() > u8::MAX.into()) {
-            bail!("File name too big (max 255 bytes)")
-        } else {
-            Ok(FileDeclaration { name, size })
-        }
-    }
 }
 
 impl ToAndFromFS for FileDeclaration {
