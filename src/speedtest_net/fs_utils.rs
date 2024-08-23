@@ -76,14 +76,12 @@ impl FileDeclaration {
     }
 
     pub fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>> {
-        let res = {
+        if {
             let mut sign = [0u8; 1];
             r.read_exact(sign.as_mut_slice())?;
             sign != [0b11111111u8]
-        };
-        if res {
-            Ok(None)
-        } else {
+        } {Ok(None)}
+        else {
             let mut name_len = [0u8; 1];
             r.read_exact(name_len.as_mut_slice())?;
 
