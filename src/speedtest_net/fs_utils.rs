@@ -46,6 +46,19 @@ pub struct FileDeclaration {
 }
 
 #[allow(dead_code)]
+pub trait ToAndFromFS where Self: Sized {
+    fn to_writer(&self, r: &mut impl io::Write) -> Result<()>;
+
+    fn to_writer_flushed(self, r: &mut impl io::Write) -> Result<()> {
+        self.to_writer(r)?;
+        r.flush().context("unable to flush writer")
+    }
+
+    /// Result<None> means no error but does not exist (and it may not exist)
+    fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>>;
+}
+
+#[allow(dead_code)]
 impl FileDeclaration {
     pub fn new(name: Option<String>, size: u64) -> Result<Self> {
         if name.as_ref().is_some_and(|n| n.len() > u8::MAX.into()) {
@@ -54,8 +67,10 @@ impl FileDeclaration {
             Ok(FileDeclaration { name, size })
         }
     }
+}
 
-    pub fn to_writer(&self, r: &mut impl io::Write) -> Result<()> {
+impl ToAndFromFS for FileDeclaration {
+    fn to_writer(&self, r: &mut impl io::Write) -> Result<()> {
         let mut v = Vec::new();
         v.push(u8::MAX); // declaration
         match &self.name {
@@ -70,18 +85,14 @@ impl FileDeclaration {
         r.write_all(v.as_slice()).context("unable to write_all")
     }
 
-    pub fn to_writer_flushed(self, r: &mut impl io::Write) -> Result<()> {
-        self.to_writer(r)?;
-        r.flush().context("unable to flush writer")
-    }
-
-    pub fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>> {
+    /// we shall test for Result<Some> till we get the FD
+    fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>> {
         if {
             let mut sign = [0u8; 1];
             r.read_exact(sign.as_mut_slice())?;
             sign != [0b11111111u8]
         } {Ok(None)}
-        
+
         else {
             let mut name_len = [0u8; 1];
             r.read_exact(name_len.as_mut_slice())?;
