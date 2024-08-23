@@ -81,6 +81,7 @@ impl FileDeclaration {
             r.read_exact(sign.as_mut_slice())?;
             sign != [0b11111111u8]
         } {Ok(None)}
+        
         else {
             let mut name_len = [0u8; 1];
             r.read_exact(name_len.as_mut_slice())?;
