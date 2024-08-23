@@ -55,17 +55,21 @@ impl std::fmt::Display for ChunkJson {
 
 impl ChunkJson {
     pub fn is_bytable(self) -> Result<Self> {
-        if !(CHUNK_JSON_LIMITS.server_id_min..=CHUNK_JSON_LIMITS.server_id_max)
-            .contains(&self.server_id) {
+        if !(
+            CHUNK_JSON_LIMITS.server_id_min..=CHUNK_JSON_LIMITS.server_id_max
+        ).contains(&self.server_id) {
             bail!("'serverid' is not in range.")
-        } else if !(CHUNK_JSON_LIMITS.ping_min..=CHUNK_JSON_LIMITS.ping_max)
-            .contains(&self.ping) {
+        } else if !(
+            CHUNK_JSON_LIMITS.ping_min..=CHUNK_JSON_LIMITS.ping_max
+        ).contains(&self.ping) {
             bail!("'ping' is not in range.")
-        } else if !(CHUNK_JSON_LIMITS.upload_min..=CHUNK_JSON_LIMITS.upload_max)
-            .contains(&self.upload) {
+        } else if !(
+            CHUNK_JSON_LIMITS.upload_min..=CHUNK_JSON_LIMITS.upload_max
+        ).contains(&self.upload) {
             bail!("'upload' is not in range.")
-        } else if !(CHUNK_JSON_LIMITS.download_min..=CHUNK_JSON_LIMITS.download_max)
-            .contains(&self.download) {
+        } else if !(
+            CHUNK_JSON_LIMITS.download_min..=CHUNK_JSON_LIMITS.download_max
+        ).contains(&self.download) {
             bail!("'download' is not in range")
         } else {
             Ok(self)
