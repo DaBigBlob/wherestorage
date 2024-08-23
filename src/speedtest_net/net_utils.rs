@@ -59,7 +59,8 @@ impl ChunkJson {
             .contains(&self.server_id)
         {
             bail!("'serverid' is not in range.")
-        } else if !(CHUNK_JSON_LIMITS.ping_min..=CHUNK_JSON_LIMITS.ping_max).contains(&self.ping) {
+        } else if !(CHUNK_JSON_LIMITS.ping_min..=CHUNK_JSON_LIMITS.ping_max)
+            .contains(&self.ping) {
             bail!("'ping' is not in range.")
         } else if !(CHUNK_JSON_LIMITS.upload_min..=CHUNK_JSON_LIMITS.upload_max)
             .contains(&self.upload)
