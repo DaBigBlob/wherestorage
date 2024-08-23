@@ -37,24 +37,24 @@ pub struct ChunkJson {
     pub download: u32, // 1 to 9999999 (7 of them):::: 9999999states ::~23bits ::2.9 bytes::23bit ::2B + 7b
 } // total log_2(9999999*9999999*65537*64957) = ~78 bits = ~9 bytes = 9*8 = 72 bits
 
-impl ChunkJson {
-    pub fn to_string(self) -> String {
-        format!(
-            "{{\"serverid\":{},\"ping\":{},\"upload\":{},\"download\":{},\"hash\":\"{}\"}}",
+impl std::fmt::Display for ChunkJson {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{{\"serverid\":{},\"ping\":{},\"upload\":{},\"download\":{},\"hash\":\"{:x}\"}}",
             self.server_id,
             self.ping,
             self.upload,
             self.download,
-            format!(
-                "{:x}",
-                md5::compute(format!(
-                    "{}-{}-{}-817d699764d33f89c",
-                    self.ping, self.upload, self.download
-                ))
-            )
+            md5::compute(format!(
+                "{}-{}-{}-817d699764d33f89c",
+                self.ping, self.upload, self.download
+            ))
         )
     }
+}
 
+impl ChunkJson {
     pub fn is_bytable(self) -> Result<Self> {
         if !(CHUNK_JSON_LIMITS.server_id_min..=CHUNK_JSON_LIMITS.server_id_max)
             .contains(&self.server_id)
