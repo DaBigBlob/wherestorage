@@ -3,6 +3,13 @@ use anyhow::{bail, Context, Result};
 use std::io;
 use super::ToAndFromFS;
 
+/** Serialization Strategy
+ * isFDFlag: 0xffu8
+ * name_len: u8
+ * name: \[u8]
+ * size: \[u8; 8]
+ */
+
 #[allow(dead_code)]
 pub struct FileDeclaration {
     pub name: Option<String>, // 0 to 255 bytes
