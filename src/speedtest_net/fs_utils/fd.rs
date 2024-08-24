@@ -113,7 +113,7 @@ mod tests {
     #[test]
     fn file_declaration_to_from_test() {
         let fnn = "file_declaration_to_from_test.bin".to_string();
-        let fd = FileDeclaration::new(Some("Test test".to_string()), 101).unwrap();
+        let fd = FileDeclaration::new(Some("Test test".to_string()), 123).unwrap();
 
         let mut wf = fs::File::create(&fnn).unwrap();
         let _ = fd.clone().to_writer_flushed(&mut wf).unwrap();
