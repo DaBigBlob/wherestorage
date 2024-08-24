@@ -100,6 +100,16 @@ mod tests {
         }
     }
 
+    // impl Display for FileDeclaration {
+    //     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    //         let name = match &self.name {
+    //             None => "None".to_string(),
+    //             Some(n) => format!("Some({})", n)
+    //         };
+    //         write!(f, "{{name: {}, size: {}}}", name, self.size)
+    //     }
+    // }
+
     #[test]
     fn file_declaration_to_from_test() {
         let fnn = "file_declaration_to_from_test.bin".to_string();
@@ -111,6 +121,8 @@ mod tests {
         let mut rf = fs::File::open(fnn).unwrap();
         let nfd = FileDeclaration::from_reader(&mut rf).unwrap();
 
+        dbg!(fd.clone());
+        dbg!(nfd.clone());
         assert_eq!(Some(fd), nfd);
     }
 }
