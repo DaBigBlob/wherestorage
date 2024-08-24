@@ -79,7 +79,7 @@ impl ToAndFromFS for FileDeclaration {
 
 #[cfg(test)]
 mod tests {
-    use std::{fmt::Debug, fs};
+    use std::{fmt::Debug, fs::{self, remove_file}};
     use super::*;
 
     impl PartialEq for FileDeclaration {
@@ -118,8 +118,10 @@ mod tests {
         let mut wf = fs::File::create(&fnn).unwrap();
         let _ = fd.clone().to_writer_flushed(&mut wf).unwrap();
 
-        let mut rf = fs::File::open(fnn).unwrap();
+        let mut rf = fs::File::open(&fnn).unwrap();
         let nfd = FileDeclaration::from_reader(&mut rf).unwrap();
+
+        let _ = fs::remove_file(fnn);
 
         dbg!(fd.clone());
         dbg!(nfd.clone());
