@@ -75,3 +75,42 @@ impl ToAndFromFS for FileDeclaration {
         }
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use std::{fmt::Debug, fs};
+    use super::*;
+
+    impl PartialEq for FileDeclaration {
+        fn eq(&self, other: &Self) -> bool {
+            self.name == other.name && self.size == other.size
+        }
+    }
+
+    impl Debug for FileDeclaration {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.debug_struct("FileDeclaration").field("name", &self.name).field("size", &self.size).finish()
+        }
+    }
+
+    impl Clone for FileDeclaration {
+        fn clone(&self) -> Self {
+            Self { name: self.name.clone(), size: self.size.clone() }
+        }
+    }
+
+    #[test]
+    fn file_declaration_to_from_test() {
+        let fnn = "file_declaration_to_from_test.bin".to_string();
+        let fd = FileDeclaration::new(Some("Test test".to_string()), 101).unwrap();
+
+        let mut wf = fs::File::create(&fnn).unwrap();
+        let _ = fd.clone().to_writer_flushed(&mut wf).unwrap();
+
+        let mut rf = fs::File::open(fnn).unwrap();
+        let nfd = FileDeclaration::from_reader(&mut rf).unwrap();
+
+        assert_eq!(Some(fd), nfd);
+    }
+}
