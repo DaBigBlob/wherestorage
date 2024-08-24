@@ -79,7 +79,7 @@ impl ToAndFromFS for FileDeclaration {
 
 #[cfg(test)]
 mod tests {
-    use std::{fmt::Debug, fs::{self, remove_file}};
+    use std::{fmt::Debug, fs};
     use super::*;
 
     impl PartialEq for FileDeclaration {
