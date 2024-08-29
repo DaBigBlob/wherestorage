@@ -8,7 +8,7 @@ use std::path::PathBuf;
 pub async fn upload_file(file: PathBuf) -> Result<()> {
     let client = request::client()?;
     let _file_data = fs::read(file)?;
-    
+
     let a = upload_chunk(
         client,
         ChunkBytes::try_from(ChunkJson {
