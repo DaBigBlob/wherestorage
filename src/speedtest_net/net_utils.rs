@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
+
 pub type ChunkBytes = [u8; 9];
 
+/// Limitations of each field in [`ChunkJson`]
 pub struct ChunkJsonLimits {
     pub server_id_max: u16,
     pub server_id_min: u16,
@@ -41,13 +43,22 @@ const CHUNK_JSON_LIMITS: ChunkJsonLimits = ChunkJsonLimits {
     download_min: 1,
 };
 
+/// Represents the data which is uploaded to `speedtest.net`
+/// total size: log_2(9999999*9999999*65537*64957) = ~78 bits = ~9 bytes = 9*8 = 72 bits
 #[derive(Debug)]
 pub struct ChunkJson {
-    pub server_id: u16, // 10000 to 65462          :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
-    pub ping: u16, // 0 to 65536              :::: 65537  states ::~16bits ::2 bytes  ::16bit ::2B
-    pub upload: u32, // 1 to 9999999 (7 of them):::: 9999999states ::~23bits ::2.9 bytes::23bit ::2B + 7b
-    pub download: u32, // 1 to 9999999 (7 of them):::: 9999999states ::~23bits ::2.9 bytes::23bit ::2B + 7b
-} // total log_2(9999999*9999999*65537*64957) = ~78 bits = ~9 bytes = 9*8 = 72 bits
+    /// Data storage: [10000,65462]          :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
+    pub server_id: u16,
+
+    /// Data Storage: [0,65536]              :::: 65537  states ::~16bits ::2 bytes  ::16bit ::2B
+    pub ping: u16,
+
+    /// Data Storage: [1,9999999] (7 of them):::: 9999999states ::~23bits ::2.9 bytes::23bit ::2B + 7b
+    pub upload: u32,
+
+    /// Data Storage: [1,9999999] (7 of them):::: 9999999states ::~23bits ::2.9 bytes::23bit ::2B + 7b
+    pub download: u32,
+}
 
 impl std::fmt::Display for ChunkJson {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
