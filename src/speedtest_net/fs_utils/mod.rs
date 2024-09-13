@@ -1,8 +1,7 @@
-
-mod fd;
 mod epoch_delta;
+mod fd;
 
-use anyhow::{ Context, Result};
+use anyhow::{Context, Result};
 use std::io;
 
 /*  next_delta from file_epoch
@@ -44,7 +43,10 @@ use std::io;
 */
 
 #[allow(dead_code)]
-pub trait ToAndFromFS where Self: Sized {
+pub trait ToAndFromFS
+where
+    Self: Sized,
+{
     fn to_writer(&self, r: &mut impl io::Write) -> Result<()>;
 
     fn to_writer_flushed(self, r: &mut impl io::Write) -> Result<()> {
