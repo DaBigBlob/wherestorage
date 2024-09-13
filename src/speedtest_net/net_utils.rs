@@ -1,5 +1,5 @@
 use anyhow::{bail, Result};
-pub struct ChunkBytes([u8; 9]);
+pub type ChunkBytes = [u8; 9];
 
 pub struct ChunkJsonLimits {
     pub server_id_max: u16,
@@ -89,20 +89,20 @@ impl From<ChunkBytes> for ChunkJson {
     #[allow(clippy::unusual_byte_groupings)]
     fn from(cb: ChunkBytes) -> Self {
         let server_id: u16 = CHUNK_JSON_LIMITS.server_id_min
-            +  (((cb.0[0] as u16)           << 2) & 0b11111111_00u16)
-            + ((((cb.0[7] as u16) & 0b1)    << 1) & 0b1_0u16)
-            +   ((cb.0[8] as u16) & 0b1);
+            +  (((cb[0] as u16)           << 2) & 0b11111111_00u16)
+            + ((((cb[7] as u16) & 0b1)    << 1) & 0b1_0u16)
+            +   ((cb[8] as u16) & 0b1);
         let ping: u16 = CHUNK_JSON_LIMITS.ping_min
-            + (((cb.0[1] as u16) << 8)  & 0b11111111_00000000u16)
-            +  ((cb.0[2] as u16)        & 0b11111111u16);
+            + (((cb[1] as u16) << 8)  & 0b11111111_00000000u16)
+            +  ((cb[2] as u16)        & 0b11111111u16);
         let upload: u32 = CHUNK_JSON_LIMITS.upload_min
-            + (((cb.0[3] as u32) << (8 + 7)) & 0b11111111_00000000_0000000u32)
-            + (((cb.0[4] as u32) << 7      ) & 0b11111111_0000000u32)
-            + (((cb.0[7] as u32) >> 1      ) & 0b1111111u32);
+            + (((cb[3] as u32) << (8 + 7)) & 0b11111111_00000000_0000000u32)
+            + (((cb[4] as u32) << 7      ) & 0b11111111_0000000u32)
+            + (((cb[7] as u32) >> 1      ) & 0b1111111u32);
         let download: u32 = CHUNK_JSON_LIMITS.upload_min
-            + (((cb.0[5] as u32) << (8 + 7)) & 0b11111111_00000000_0000000u32)
-            + (((cb.0[6] as u32) << 7      ) & 0b11111111_0000000u32)
-            + (((cb.0[8] as u32) >> 1      ) & 0b1111111u32);
+            + (((cb[5] as u32) << (8 + 7)) & 0b11111111_00000000_0000000u32)
+            + (((cb[6] as u32) << 7      ) & 0b11111111_0000000u32)
+            + (((cb[8] as u32) >> 1      ) & 0b1111111u32);
 
         Self {
             server_id,
@@ -119,7 +119,7 @@ impl TryFrom<ChunkJson> for ChunkBytes {
     #[allow(clippy::unusual_byte_groupings)]
     fn try_from(cj: ChunkJson) -> Result<Self> {
         let cjb = cj.is_bytable()?;
-        let mut bytes: [u8; 9] = [0; 9];
+        let mut bytes: ChunkBytes = [0; 9];
 
         let mut server_id = cjb.server_id - CHUNK_JSON_LIMITS.server_id_min;
         bytes[8] |= (server_id & 0b1).to_le_bytes()[0];
@@ -144,7 +144,7 @@ impl TryFrom<ChunkJson> for ChunkBytes {
         bytes[6] |= download_bytes[0];
         bytes[5] |= download_bytes[1];
 
-        Ok(ChunkBytes(bytes))
+        Ok(bytes)
     }
 }
 
@@ -154,7 +154,7 @@ mod tests {
 
     #[test]
     fn max() {
-        let a = ChunkJson::from(ChunkBytes([u8::MAX; 9]));
+        let a = ChunkJson::from([u8::MAX; 9]);
         dbg!(&a);
         assert_eq!(a.upload, 2u32.pow(23) - 1 + 1);
         assert_eq!(a.upload, a.download);
@@ -162,7 +162,7 @@ mod tests {
 
     #[test]
     fn min() {
-        let b = ChunkJson::from(ChunkBytes([u8::MIN; 9]));
+        let b = ChunkJson::from([u8::MIN; 9]);
         dbg!(&b);
         assert_eq!(b.upload, 1);
         assert_eq!(b.upload, b.download);
@@ -171,8 +171,8 @@ mod tests {
     #[test]
     fn good_enc_dec() {
         let b: [u8; 9] = [100, 101, 102, 103, 104, 105, 106, 107, 108];
-        let cb = ChunkBytes(b);
+        let cb: ChunkBytes = b.into();
         let cj = ChunkJson::from(cb);
-        assert_eq!(ChunkBytes::try_from(cj).unwrap().0, b);
+        assert_eq!(ChunkBytes::try_from(cj).unwrap(), b);
     }
 }
