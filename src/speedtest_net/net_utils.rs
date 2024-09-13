@@ -75,16 +75,15 @@ impl ChunkJson {
 }
 
 impl From<ChunkBytes> for ChunkJson {
-    /* byte allocation to field
-       bytes[0]            -> server_id
-       bytes[1,2]          -> ping
-       bytes[3,4]          -> upload
-       bytes[5,6]          -> download
-       bytes[7] & 0b1      -> server_id
-       bytes[7] >> 1       -> upload
-       bytes[8] & 0b1      -> download
-       bytes[8] >> 1       -> download
-    */
+    /// byte allocation to field
+    /// bytes[0]            -> server_id
+    /// bytes[1,2]          -> ping
+    /// bytes[3,4]          -> upload
+    /// bytes[5,6]          -> download
+    /// bytes[7] & 0b1      -> server_id
+    /// bytes[7] >> 1       -> upload
+    /// bytes[8] & 0b1      -> download
+    /// bytes[8] >> 1       -> download
     #[rustfmt::skip]
     #[allow(clippy::unusual_byte_groupings)]
     fn from(cb: ChunkBytes) -> Self {
