@@ -10,6 +10,7 @@ use std::io;
  */
 
 #[allow(dead_code)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct FileDeclaration {
     pub name: Option<String>, // 0 to 255 bytes
     /// number of file bytes
@@ -44,6 +45,7 @@ impl ToAndFromFS for FileDeclaration {
     }
 
     /// we shall test for Result<Some> till we get the FD
+    #[allow(clippy::blocks_in_conditions)]
     fn from_reader(r: &mut impl io::Read) -> Result<Option<Self>> {
         if {
             let mut sign = [0u8; 1];
@@ -78,41 +80,7 @@ impl ToAndFromFS for FileDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fmt::Debug, fs};
-
-    impl PartialEq for FileDeclaration {
-        fn eq(&self, other: &Self) -> bool {
-            self.name == other.name && self.size == other.size
-        }
-    }
-
-    impl Debug for FileDeclaration {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            f.debug_struct("FileDeclaration")
-                .field("name", &self.name)
-                .field("size", &self.size)
-                .finish()
-        }
-    }
-
-    impl Clone for FileDeclaration {
-        fn clone(&self) -> Self {
-            Self {
-                name: self.name.clone(),
-                size: self.size.clone(),
-            }
-        }
-    }
-
-    // impl Display for FileDeclaration {
-    //     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    //         let name = match &self.name {
-    //             None => "None".to_string(),
-    //             Some(n) => format!("Some({})", n)
-    //         };
-    //         write!(f, "{{name: {}, size: {}}}", name, self.size)
-    //     }
-    // }
+    use std::fs;
 
     #[test]
     fn file_declaration_to_from_test() {

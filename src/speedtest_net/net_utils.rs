@@ -23,6 +23,7 @@ const CHUNK_JSON_LIMITS: ChunkJsonLimits = ChunkJsonLimits {
     download_min: 1,
 };
 
+#[derive(Debug)]
 pub struct ChunkJson {
     pub server_id: u16, // 10000 to 65462          :::: 64689  states ::~15bits ::1.9 bytes::10bit ::1B + 7b
     pub ping: u16, // 0 to 65536              :::: 65537  states ::~16bits ::2 bytes  ::16bit ::2B
@@ -48,6 +49,8 @@ impl std::fmt::Display for ChunkJson {
 }
 
 impl ChunkJson {
+    #[rustfmt::skip]
+    #[allow(clippy::wrong_self_convention)]
     pub fn is_bytable(self) -> Result<Self> {
         if !(
             CHUNK_JSON_LIMITS.server_id_min..=CHUNK_JSON_LIMITS.server_id_max
@@ -82,6 +85,8 @@ impl From<ChunkBytes> for ChunkJson {
        bytes[8] & 0b1      -> download
        bytes[8] >> 1       -> download
     */
+    #[rustfmt::skip]
+    #[allow(clippy::unusual_byte_groupings)]
     fn from(cb: ChunkBytes) -> Self {
         let server_id: u16 = CHUNK_JSON_LIMITS.server_id_min
             +  (((cb.0[0] as u16)           << 2) & 0b11111111_00u16)
@@ -111,32 +116,33 @@ impl From<ChunkBytes> for ChunkJson {
 impl TryFrom<ChunkJson> for ChunkBytes {
     type Error = anyhow::Error;
 
+    #[allow(clippy::unusual_byte_groupings)]
     fn try_from(cj: ChunkJson) -> Result<Self> {
         let cjb = cj.is_bytable()?;
         let mut bytes: [u8; 9] = [0; 9];
 
         let mut server_id = cjb.server_id - CHUNK_JSON_LIMITS.server_id_min;
-        bytes[8] += (server_id & 0b1).to_le_bytes()[0];
+        bytes[8] |= (server_id & 0b1).to_le_bytes()[0];
         server_id = (server_id >> 1) & 0b11111111_1u16;
-        bytes[7] += (server_id & 0b1).to_le_bytes()[0];
+        bytes[7] |= (server_id & 0b1).to_le_bytes()[0];
         server_id = (server_id >> 1) & 0b11111111u16;
-        bytes[0] += server_id.to_le_bytes()[0];
+        bytes[0] |= server_id.to_le_bytes()[0];
 
         let ping = (cjb.ping - CHUNK_JSON_LIMITS.ping_min).to_le_bytes();
-        bytes[2] += ping[0];
-        bytes[1] += ping[1];
+        bytes[2] |= ping[0];
+        bytes[1] |= ping[1];
 
         let upload = cjb.upload - CHUNK_JSON_LIMITS.upload_min;
-        bytes[7] += ((upload << 1) & 0b11111110u32).to_le_bytes()[0];
+        bytes[7] |= ((upload << 1) & 0b11111110u32).to_le_bytes()[0];
         let upload_bytes = ((upload >> 7) & 0b11111111_11111111u32).to_le_bytes();
-        bytes[4] += upload_bytes[0];
-        bytes[3] += upload_bytes[1];
+        bytes[4] |= upload_bytes[0];
+        bytes[3] |= upload_bytes[1];
 
         let download = cjb.download - CHUNK_JSON_LIMITS.download_min;
-        bytes[8] += ((download << 1) & 0b11111110u32).to_le_bytes()[0];
+        bytes[8] |= ((download << 1) & 0b11111110u32).to_le_bytes()[0];
         let download_bytes = ((download >> 7) & 0b11111111_11111111u32).to_le_bytes();
-        bytes[6] += download_bytes[0];
-        bytes[5] += download_bytes[1];
+        bytes[6] |= download_bytes[0];
+        bytes[5] |= download_bytes[1];
 
         Ok(ChunkBytes(bytes))
     }
@@ -145,19 +151,6 @@ impl TryFrom<ChunkJson> for ChunkBytes {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fmt::Debug;
-    use std::fmt::{self, Formatter};
-
-    impl Debug for ChunkJson {
-        fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-            f.debug_struct("ChunkJson")
-                .field("server_id", &self.server_id)
-                .field("ping", &self.ping)
-                .field("upload", &self.upload)
-                .field("download", &self.download)
-                .finish()
-        }
-    }
 
     #[test]
     fn max() {
