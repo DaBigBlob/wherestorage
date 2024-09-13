@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{Context, Result};
 pub type ChunkBytes = [u8; 9];
 
 pub struct ChunkJsonLimits {
@@ -10,6 +10,24 @@ pub struct ChunkJsonLimits {
     pub upload_min: u32,
     pub download_max: u32,
     pub download_min: u32,
+}
+
+impl ChunkJsonLimits {
+    pub fn is_valid_server_id(&self, server_id: &u16) -> bool {
+        (self.server_id_min..=self.server_id_max).contains(server_id)
+    }
+
+    pub fn is_valid_ping(&self, ping: &u16) -> bool {
+        (self.ping_min..=self.ping_max).contains(ping)
+    }
+
+    pub fn is_valid_upload(&self, upload: &u32) -> bool {
+        (self.upload_min..=self.upload_max).contains(upload)
+    }
+
+    pub fn is_valid_download(&self, download: &u32) -> bool {
+        (self.download_min..=self.download_max).contains(download)
+    }
 }
 
 const CHUNK_JSON_LIMITS: ChunkJsonLimits = ChunkJsonLimits {
@@ -49,28 +67,24 @@ impl std::fmt::Display for ChunkJson {
 }
 
 impl ChunkJson {
-    #[rustfmt::skip]
-    #[allow(clippy::wrong_self_convention)]
-    pub fn is_bytable(self) -> Result<Self> {
-        if !(
-            CHUNK_JSON_LIMITS.server_id_min..=CHUNK_JSON_LIMITS.server_id_max
-        ).contains(&self.server_id) {
-            bail!("'serverid' is not in range.")
-        } else if !(
-            CHUNK_JSON_LIMITS.ping_min..=CHUNK_JSON_LIMITS.ping_max
-        ).contains(&self.ping) {
-            bail!("'ping' is not in range.")
-        } else if !(
-            CHUNK_JSON_LIMITS.upload_min..=CHUNK_JSON_LIMITS.upload_max
-        ).contains(&self.upload) {
-            bail!("'upload' is not in range.")
-        } else if !(
-            CHUNK_JSON_LIMITS.download_min..=CHUNK_JSON_LIMITS.download_max
-        ).contains(&self.download) {
-            bail!("'download' is not in range")
-        } else {
-            Ok(self)
-        }
+    pub fn is_serializable(&self) -> Result<()> {
+        CHUNK_JSON_LIMITS
+            .is_valid_server_id(&self.server_id)
+            .then_some(true)
+            .context("'serverid' is not in range")?;
+        CHUNK_JSON_LIMITS
+            .is_valid_ping(&self.ping)
+            .then_some(true)
+            .context("'ping' is not in range")?;
+        CHUNK_JSON_LIMITS
+            .is_valid_upload(&self.upload)
+            .then_some(true)
+            .context("'upload' is not in range")?;
+        CHUNK_JSON_LIMITS
+            .is_valid_download(&self.download)
+            .then_some(true)
+            .context("'download' is not in range")?;
+        Ok(())
     }
 }
 
@@ -116,8 +130,8 @@ impl TryFrom<ChunkJson> for ChunkBytes {
     type Error = anyhow::Error;
 
     #[allow(clippy::unusual_byte_groupings)]
-    fn try_from(cj: ChunkJson) -> Result<Self> {
-        let cjb = cj.is_bytable()?;
+    fn try_from(cjb: ChunkJson) -> Result<Self> {
+        cjb.is_serializable().context("cj is not serializable")?;
         let mut bytes: ChunkBytes = [0; 9];
 
         let mut server_id = cjb.server_id - CHUNK_JSON_LIMITS.server_id_min;
