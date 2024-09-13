@@ -1,46 +1,40 @@
+use std::ops::RangeInclusive;
+
 use anyhow::{Context, Result};
 
 pub type ChunkBytes = [u8; 9];
 
 /// Limitations of each field in [`ChunkJson`]
 pub struct ChunkJsonLimits {
-    pub server_id_max: u16,
-    pub server_id_min: u16,
-    pub ping_max: u16,
-    pub ping_min: u16,
-    pub upload_max: u32,
-    pub upload_min: u32,
-    pub download_max: u32,
-    pub download_min: u32,
+    pub server_id: RangeInclusive<u16>,
+    pub ping: RangeInclusive<u16>,
+    pub upload: RangeInclusive<u32>,
+    pub download: RangeInclusive<u32>,
 }
 
 impl ChunkJsonLimits {
     pub fn is_valid_server_id(&self, server_id: &u16) -> bool {
-        (self.server_id_min..=self.server_id_max).contains(server_id)
+        self.server_id.contains(server_id)
     }
 
     pub fn is_valid_ping(&self, ping: &u16) -> bool {
-        (self.ping_min..=self.ping_max).contains(ping)
+        self.ping.contains(ping)
     }
 
     pub fn is_valid_upload(&self, upload: &u32) -> bool {
-        (self.upload_min..=self.upload_max).contains(upload)
+        self.upload.contains(upload)
     }
 
     pub fn is_valid_download(&self, download: &u32) -> bool {
-        (self.download_min..=self.download_max).contains(download)
+        self.download.contains(download)
     }
 }
 
 const CHUNK_JSON_LIMITS: ChunkJsonLimits = ChunkJsonLimits {
-    server_id_max: 11024, // 10bits // 2^10 -1 +server_id_min
-    server_id_min: 10000,
-    ping_max: 65535, // 16bits // 2^16 -1 +ping_min
-    ping_min: 0,
-    upload_max: 8388608, // 23bits // 2^23 -1 +upload_min
-    upload_min: 1,
-    download_max: 8388608, // 23bits // 2^23 -1 +download_min
-    download_min: 1,
+    server_id: (10000..=11024), // 10bits // 2^10 -1 +server_id_min
+    ping: (0..=65535),          // 23bits // 2^23 -1 +upload_min
+    upload: (1..=8388608),      // 23bits // 2^23 -1 +upload_min
+    download: (1..=8388608),    // 23bits // 2^23 -1 +download_min
 };
 
 /// Represents the data which is uploaded to `speedtest.net`
@@ -112,18 +106,18 @@ impl From<ChunkBytes> for ChunkJson {
     #[rustfmt::skip]
     #[allow(clippy::unusual_byte_groupings)]
     fn from(cb: ChunkBytes) -> Self {
-        let server_id: u16 = CHUNK_JSON_LIMITS.server_id_min
+        let server_id: u16 = CHUNK_JSON_LIMITS.server_id.start()
             +  (((cb[0] as u16)           << 2) & 0b11111111_00u16)
             + ((((cb[7] as u16) & 0b1)    << 1) & 0b1_0u16)
             +   ((cb[8] as u16) & 0b1);
-        let ping: u16 = CHUNK_JSON_LIMITS.ping_min
+        let ping: u16 = CHUNK_JSON_LIMITS.ping.start()
             + (((cb[1] as u16) << 8)  & 0b11111111_00000000u16)
             +  ((cb[2] as u16)        & 0b11111111u16);
-        let upload: u32 = CHUNK_JSON_LIMITS.upload_min
+        let upload: u32 = CHUNK_JSON_LIMITS.upload.start()
             + (((cb[3] as u32) << (8 + 7)) & 0b11111111_00000000_0000000u32)
             + (((cb[4] as u32) << 7      ) & 0b11111111_0000000u32)
             + (((cb[7] as u32) >> 1      ) & 0b1111111u32);
-        let download: u32 = CHUNK_JSON_LIMITS.upload_min
+        let download: u32 = CHUNK_JSON_LIMITS.upload.start()
             + (((cb[5] as u32) << (8 + 7)) & 0b11111111_00000000_0000000u32)
             + (((cb[6] as u32) << 7      ) & 0b11111111_0000000u32)
             + (((cb[8] as u32) >> 1      ) & 0b1111111u32);
@@ -145,24 +139,24 @@ impl TryFrom<ChunkJson> for ChunkBytes {
         cjb.is_serializable().context("cj is not serializable")?;
         let mut bytes: ChunkBytes = [0; 9];
 
-        let mut server_id = cjb.server_id - CHUNK_JSON_LIMITS.server_id_min;
+        let mut server_id = cjb.server_id - CHUNK_JSON_LIMITS.server_id.start();
         bytes[8] |= (server_id & 0b1).to_le_bytes()[0];
         server_id = (server_id >> 1) & 0b11111111_1u16;
         bytes[7] |= (server_id & 0b1).to_le_bytes()[0];
         server_id = (server_id >> 1) & 0b11111111u16;
         bytes[0] |= server_id.to_le_bytes()[0];
 
-        let ping = (cjb.ping - CHUNK_JSON_LIMITS.ping_min).to_le_bytes();
+        let ping = (cjb.ping - CHUNK_JSON_LIMITS.ping.start()).to_le_bytes();
         bytes[2] |= ping[0];
         bytes[1] |= ping[1];
 
-        let upload = cjb.upload - CHUNK_JSON_LIMITS.upload_min;
+        let upload = cjb.upload - CHUNK_JSON_LIMITS.upload.start();
         bytes[7] |= ((upload << 1) & 0b11111110u32).to_le_bytes()[0];
         let upload_bytes = ((upload >> 7) & 0b11111111_11111111u32).to_le_bytes();
         bytes[4] |= upload_bytes[0];
         bytes[3] |= upload_bytes[1];
 
-        let download = cjb.download - CHUNK_JSON_LIMITS.download_min;
+        let download = cjb.download - CHUNK_JSON_LIMITS.download.start();
         bytes[8] |= ((download << 1) & 0b11111110u32).to_le_bytes()[0];
         let download_bytes = ((download >> 7) & 0b11111111_11111111u32).to_le_bytes();
         bytes[6] |= download_bytes[0];
