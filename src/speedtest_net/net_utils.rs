@@ -11,24 +11,6 @@ pub struct ChunkJsonLimits {
     pub download: RangeInclusive<u32>,
 }
 
-impl ChunkJsonLimits {
-    pub fn is_valid_server_id(&self, server_id: &u16) -> bool {
-        self.server_id.contains(server_id)
-    }
-
-    pub fn is_valid_ping(&self, ping: &u16) -> bool {
-        self.ping.contains(ping)
-    }
-
-    pub fn is_valid_upload(&self, upload: &u32) -> bool {
-        self.upload.contains(upload)
-    }
-
-    pub fn is_valid_download(&self, download: &u32) -> bool {
-        self.download.contains(download)
-    }
-}
-
 const CHUNK_JSON_LIMITS: ChunkJsonLimits = ChunkJsonLimits {
     server_id: (10000..=11024), // 10bits // 2^10 -1 +server_id_min
     ping: (0..=65535),          // 23bits // 2^23 -1 +upload_min
@@ -73,20 +55,24 @@ impl std::fmt::Display for ChunkJson {
 impl ChunkJson {
     pub fn is_serializable(&self) -> Result<()> {
         CHUNK_JSON_LIMITS
-            .is_valid_server_id(&self.server_id)
-            .then_some(true)
+            .server_id
+            .contains(&self.server_id)
+            .then_some(())
             .context("'serverid' is not in range")?;
         CHUNK_JSON_LIMITS
-            .is_valid_ping(&self.ping)
-            .then_some(true)
+            .ping
+            .contains(&self.ping)
+            .then_some(())
             .context("'ping' is not in range")?;
         CHUNK_JSON_LIMITS
-            .is_valid_upload(&self.upload)
-            .then_some(true)
+            .upload
+            .contains(&self.upload)
+            .then_some(())
             .context("'upload' is not in range")?;
         CHUNK_JSON_LIMITS
-            .is_valid_download(&self.download)
-            .then_some(true)
+            .download
+            .contains(&self.download)
+            .then_some(())
             .context("'download' is not in range")?;
         Ok(())
     }
