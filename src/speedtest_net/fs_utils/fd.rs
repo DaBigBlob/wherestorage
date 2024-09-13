@@ -1,7 +1,6 @@
-
+use super::ToAndFromFS;
 use anyhow::{bail, Context, Result};
 use std::io;
-use super::ToAndFromFS;
 
 /** Serialization Strategy
  * isFDFlag: 0xffu8
@@ -50,9 +49,9 @@ impl ToAndFromFS for FileDeclaration {
             let mut sign = [0u8; 1];
             r.read_exact(sign.as_mut_slice())?;
             sign != [0b11111111u8]
-        } {Ok(None)}
-
-        else {
+        } {
+            Ok(None)
+        } else {
             let mut name_len = [0u8; 1];
             r.read_exact(name_len.as_mut_slice())?;
 
@@ -76,11 +75,10 @@ impl ToAndFromFS for FileDeclaration {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use std::{fmt::Debug, fs};
     use super::*;
+    use std::{fmt::Debug, fs};
 
     impl PartialEq for FileDeclaration {
         fn eq(&self, other: &Self) -> bool {
@@ -90,13 +88,19 @@ mod tests {
 
     impl Debug for FileDeclaration {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            f.debug_struct("FileDeclaration").field("name", &self.name).field("size", &self.size).finish()
+            f.debug_struct("FileDeclaration")
+                .field("name", &self.name)
+                .field("size", &self.size)
+                .finish()
         }
     }
 
     impl Clone for FileDeclaration {
         fn clone(&self) -> Self {
-            Self { name: self.name.clone(), size: self.size.clone() }
+            Self {
+                name: self.name.clone(),
+                size: self.size.clone(),
+            }
         }
     }
 
