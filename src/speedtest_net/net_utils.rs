@@ -189,7 +189,7 @@ mod tests {
     #[test]
     fn good_enc_dec() {
         let b: [u8; 9] = [100, 101, 102, 103, 104, 105, 106, 107, 108];
-        let cb: ChunkBytes = b.into();
+        let cb: ChunkBytes = b;
         let cj = ChunkJson::from(cb);
         assert_eq!(ChunkBytes::try_from(cj).unwrap(), b);
     }

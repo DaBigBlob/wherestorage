@@ -88,7 +88,7 @@ mod tests {
         let fd = FileDeclaration::new(Some("Test test".to_string()), 123).unwrap();
 
         let mut wf = fs::File::create(&fnn).unwrap();
-        let _ = fd.clone().to_writer_flushed(&mut wf).unwrap();
+        fd.clone().to_writer_flushed(&mut wf).unwrap();
 
         let mut rf = fs::File::open(&fnn).unwrap();
         let nfd = FileDeclaration::from_reader(&mut rf).unwrap();
