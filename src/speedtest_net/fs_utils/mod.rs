@@ -26,7 +26,7 @@ use std::io;
         - itrs to fully decompressed
         - etc.
     this almost definitely has a size more than 9 bytes (chunk)
-    this descriptor startes with 0b11111111u8
+    this descriptor starts with 0b11111111u8
     [while decompressing]
     we start at unit
     we keep decompressing while ignoring the 1st byte as compressed data
