@@ -9,6 +9,7 @@ pub fn build(b: *std.Build) void {
         .preferred_optimize_mode = .ReleaseFast,
     });
 
+    // lib
     const lib_mod = b.createModule(.{
         .root_source_file = b.path("src/lib/lib.zig"),
         .target = target,
@@ -21,6 +22,7 @@ pub fn build(b: *std.Build) void {
     });
     b.installArtifact(lib);
 
+    // exe
     const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/bin/main.zig"),
         .target = target,
@@ -31,10 +33,14 @@ pub fn build(b: *std.Build) void {
         .name = "wherestorage",
         .root_module = exe_mod,
     });
+
+    // exe deps
     const clap = b.dependency("clap", .{});
     exe.root_module.addImport("clap", clap.module("clap"));
+
     b.installArtifact(exe);
 
+    // cmds
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
 
