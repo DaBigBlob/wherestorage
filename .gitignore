@@ -1,0 +1,5 @@
+*/target
+*/release
+*.bin
+.zig-cache
+*/zig-out
