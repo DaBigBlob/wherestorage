@@ -26,6 +26,7 @@ pub fn main() !void {
             "098680718fcd24abc8bafcbd3a802ad1",
         },
     );
+    defer gpa.free(payload);
 
-    std.debug.print("payload = {any}\n", .{payload});
+    std.debug.print("payload = {s}\n", .{payload});
 }
