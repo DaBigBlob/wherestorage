@@ -17,13 +17,13 @@ pub fn main() !void {
 
     const payload = try std.fmt.allocPrint(
         gpa,
-        "{any}", //"{{\"serverid\":{d},\"ping\":{d},\"upload\":{d},\"download\":{d},\"hash\":\"{s}\"}}",
+        "{{\"serverid\":{d},\"ping\":{d},\"upload\":{d},\"download\":{d},\"hash\":\"{s}\"}}",
         .{
             1897,
-            // 69,
-            // 69690,
-            // 69690,
-            // "098680718fcd24abc8bafcbd3a802ad1",
+            69,
+            69690,
+            69690,
+            "098680718fcd24abc8bafcbd3a802ad1",
         },
     );
     defer gpa.destroy(payload);
