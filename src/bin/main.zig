@@ -5,7 +5,7 @@ const lib = @import("wherestorage_lib");
 const testing = std.testing;
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa = std.heap.DebugAllocator(.{}){};
     defer _ = gpa.deinit();
     // const allocator = gpa.allocator();
 }
