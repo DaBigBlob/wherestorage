@@ -39,7 +39,7 @@ pub fn main() !void {
     );
     defer req.deinit();
 
-    // req.transfer_encoding = .{ .content_length = payload.len };
+    req.transfer_encoding = .{ .content_length = std };
     try req.send();
     // var wtr = req.writer();
     try req.writeAll(payload);
