@@ -2,7 +2,6 @@
 //!
 const std = @import("std");
 const lib = @import("wherestorage_lib");
-const http = std.http;
 const testing = std.testing;
 
 pub fn main() !void {
