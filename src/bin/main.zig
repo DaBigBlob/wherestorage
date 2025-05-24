@@ -8,4 +8,6 @@ pub fn main() !void {
     var gpa = std.heap.DebugAllocator(.{}){};
     defer _ = gpa.deinit();
     // const allocator = gpa.allocator();
+    const foo: u16 = "";
+    std.debug.print("{}", .{foo});
 }
