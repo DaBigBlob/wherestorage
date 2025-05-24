@@ -1,5 +1,5 @@
-**/target
-**/release
+target
+release
 *.bin
 .zig-cache
-**/zig-out
+zig-out
