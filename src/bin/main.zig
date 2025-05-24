@@ -6,9 +6,12 @@ const testing = std.testing;
 const http = std.http;
 
 pub fn main() !void {
-    var _gpa = std.heap.DebugAllocator(.{}).init;
-    defer _ = _gpa.deinit();
-    const gpa = _gpa.allocator();
+    var _alc = std.heap.ArenaAllocator{
+        .child_allocator = std.heap.raw_c_allocator,
+        .state = .{},
+    };
+    defer _ = _alc.deinit();
+    const alc = _alc.allocator();
 
     // var client = http.Client{ .allocator = gpa.allocator() };
 
@@ -16,7 +19,7 @@ pub fn main() !void {
     std.debug.print("uri = {}\n", .{uri});
 
     const payload = try std.fmt.allocPrint(
-        gpa,
+        alc,
         "{{\"serverid\":{d},\"ping\":{d},\"upload\":{d},\"download\":{d},\"hash\":\"{s}\"}}",
         .{
             1897,
@@ -26,7 +29,7 @@ pub fn main() !void {
             "098680718fcd24abc8bafcbd3a802ad1",
         },
     );
-    defer gpa.free(payload);
+    defer alc.free(payload);
 
     std.debug.print("payload = {s}\n", .{payload});
 }
