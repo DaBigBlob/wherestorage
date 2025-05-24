@@ -17,19 +17,32 @@ pub fn main() !void {
 
     const payload =
         \\ {
-        \\  "name": "zig-cookbook",
-        \\  "author": "John"
+        \\  "serverid": 1897,
+        \\  "ping": 69,
+        \\  "upload": 69000,
+        \\  "download": 69000,
+        \\  "hash": "098680718fcd24abc8bafcbd3a802ad1"
         \\ }
     ;
 
     var buf: [1024]u8 = undefined;
-    var req = try client.open(.POST, uri, .{ .server_header_buffer = &buf });
+    var req = try client.open(
+        .POST,
+        uri,
+        .{
+            .server_header_buffer = &buf,
+            .headers = .{
+                .user_agent = .{ .override = "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0" },
+                .content_type = .{ .override = "application/json;charset=UTF-8" },
+            },
+        },
+    );
     defer req.deinit();
 
     req.transfer_encoding = .{ .content_length = payload.len };
     try req.send();
-    var wtr = req.writer();
-    try wtr.writeAll(payload);
+    // var wtr = req.writer();
+    try req.writeAll(payload);
     try req.finish();
     try req.wait();
 

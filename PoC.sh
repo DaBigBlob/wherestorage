@@ -26,6 +26,8 @@ PAYLOAD="{
     \"hash\": \"$(do_md5_hash $MD5PAYLD)\"
 }";
 
+printf "PAYLOAD: %s\n" "$PAYLOAD";
+
 RESULT=$(curl -s 'https://www.speedtest.net/api/results.php' \
     --compressed \
     -X POST \
