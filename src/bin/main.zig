@@ -11,7 +11,7 @@ pub fn main() !void {
     const res = try http.Client.fetch(
         &client,
         .{
-            .location = .{ .url = "https://0x000.io/1x1" },
+            .location = .{ .url = "https://www.speedtest.net/api/results.php" },
             .method = .POST,
             .headers = .{
                 .user_agent = .{ .override = "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0" },
