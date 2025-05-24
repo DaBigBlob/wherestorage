@@ -7,7 +7,10 @@ const testing = std.testing;
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}).init;
-    var client = http.Client{ .allocator = gpa.allocator() };
+    var client = http.Client{
+        .allocator = gpa.allocator(),
+        .ca_bundle = std.crypto.Certificate.Bundle,
+    };
     const res = try http.Client.fetch(
         &client,
         .{
